@@ -3,10 +3,30 @@ package evolution.dto;
 public class Swagger {
 	private String uri;
 	private String requestMethod;
+	private Object requestBodyDto;
+	private Object responseBodyDto;
 	
+
 	@Override
 	public String toString() {
-		return "Swagger [uri=" + uri + ", requestMethod=" + requestMethod + "]";
+		return "Swagger [uri=" + uri + ", requestMethod=" + requestMethod + ", requestBodyDto=" + requestBodyDto
+				+ ", responseBodyDto=" + responseBodyDto + "]";
+	}
+
+	public Object getRequestBodyDto() {
+		return requestBodyDto;
+	}
+
+	public void setRequestBodyDto(Object requestBodyDto) {
+		this.requestBodyDto = requestBodyDto;
+	}
+
+	public Object getResponseBodyDto() {
+		return responseBodyDto;
+	}
+
+	public void setResponseBodyDto(Object responseBodyDto) {
+		this.responseBodyDto = responseBodyDto;
 	}
 
 	public String getUri() {

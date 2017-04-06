@@ -18,7 +18,7 @@ import evolution.dto.Swagger;
 import evolution.util.Sys;
 
 public class Application {
-	// The object can be a class, method or field object.
+	// Get the annotation of a class, method or field object.
 	@SuppressWarnings("unchecked")
 	public static <T> T annotation(Object object, Class<T> annotationClass) {
 		try {
@@ -98,8 +98,12 @@ public class Application {
 		}
 	}
 	
-	public static Object responseBodyDto() {
-		return null;
+	public static Object responseBodyDto(Method method) {
+		try {
+			return defaultObject(method.getReturnType().newInstance());
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	// The object can either be a method or class object. 
@@ -138,7 +142,9 @@ public class Application {
 			swagger.setUri(baseUri + requestMappingDto.getUri());
 			swagger.setRequestMethod(requestMappingDto.getRequestMethod());
 			// Set Request Body
-			
+			swagger.setRequestBodyDto(requestBodyDto(method));
+			// Set Response Body
+			swagger.setResponseBodyDto(responseBodyDto(method));
 			// Add Swagger
 			Sys.println(swagger);
 			swaggers.add(swagger);
