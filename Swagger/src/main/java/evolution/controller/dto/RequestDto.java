@@ -1,12 +1,25 @@
 package evolution.controller.dto;
 
+import java.util.List;
+
 public class RequestDto {
 	private String name;
 	private AnyDto anyDto;
+	private List<AnotherDto> anotherDtos;
 	
+	public List<AnotherDto> getAnotherDtos() {
+		return anotherDtos;
+	}
+
+	public void setAnotherDtos(List<AnotherDto> anotherDtos) {
+		this.anotherDtos = anotherDtos;
+	}
+
+	
+
 	@Override
 	public String toString() {
-		return "RequestDto [name=" + name + ", anyDto=" + anyDto + "]";
+		return "RequestDto [name=" + name + ", anyDto=" + anyDto + ", anotherDtos=" + anotherDtos + "]";
 	}
 
 	public AnyDto getAnyDto() {

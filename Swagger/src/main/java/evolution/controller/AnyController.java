@@ -15,4 +15,10 @@ public class AnyController {
 	public ResponseDto post(@RequestBody RequestDto dto) {
 		return null;
 	}
+	
+	@ResponseBody
+	@RequestMapping(value = "/patch", method = RequestMethod.PATCH)
+	public String patch(@RequestBody String json) {
+		return null;
+	}
 }
