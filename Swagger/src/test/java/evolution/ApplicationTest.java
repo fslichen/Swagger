@@ -9,6 +9,7 @@ import evolution.controller.AnyController;
 import evolution.controller.dto.RequestDto;
 import evolution.dto.Dto;
 import evolution.dto.Dtos;
+import evolution.util.Ref;
 import evolution.util.Sys;
 
 public class ApplicationTest {
@@ -20,7 +21,7 @@ public class ApplicationTest {
 	@Test
 	public void testDefaultObject() {
 		RequestDto dto = new RequestDto();
-		dto = (RequestDto) Application.defaultObject(dto);
+		dto = (RequestDto) Ref.defaultObject(dto);
 		Sys.println(dto);
 	}
 	
