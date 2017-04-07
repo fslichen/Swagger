@@ -1,4 +1,4 @@
-package evolution.dto;
+package evolution.bean;
 
 public class RequestMappingDto {
 	private String uri;

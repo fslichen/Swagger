@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import evolution.dto.RequestMappingDto;
-import evolution.dto.Swagger;
+import evolution.bean.RequestMappingDto;
+import evolution.bean.Swagger;
 import evolution.util.Ref;
 import evolution.util.Sys;
 
