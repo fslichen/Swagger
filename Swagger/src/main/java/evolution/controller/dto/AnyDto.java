@@ -1,14 +1,26 @@
 package evolution.controller.dto;
 
+import java.util.Map;
+
 public class AnyDto {
 	private int id;
+
 	@Override
 	public String toString() {
-		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", salary=" + salary + ", rent=" + rent + ", gender="
-				+ gender + ", address=" + address + "]";
+		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", salary=" + salary + ", paths=" + paths + ", rent="
+				+ rent + ", gender=" + gender + ", address=" + address + "]";
 	}
 	private Integer zipCode;
 	private Double salary;
+	
+	private Map<String, AnotherDto> paths;
+	
+	public Map<String, AnotherDto> getPaths() {
+		return paths;
+	}
+	public void setPaths(Map<String, AnotherDto> paths) {
+		this.paths = paths;
+	}
 	public int getId() {
 		return id;
 	}
