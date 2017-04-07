@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import evolution.bean.RequestMappingDto;
-import evolution.bean.Swagger;
+import evolution.bean.swagger.Swagger;
 import evolution.util.Ref;
 import evolution.util.Sys;
 
