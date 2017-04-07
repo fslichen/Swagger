@@ -3,6 +3,7 @@ package evolution.bean.swagger;
 import java.util.List;
 import java.util.Map;
 
+import evolution.bean.swagger.definitions.Dto;
 import evolution.bean.swagger.http.Http;
 import evolution.bean.swagger.info.Info;
 import evolution.bean.swagger.tag.Tag;
@@ -16,8 +17,14 @@ public class Swagger {
 	private List<String> schemes;
 	private Map<String, Http> paths;
 	private String uri;
+	private Map<String, Object> securityDefinitions;
+	private Map<String, Dto> definitions;
+	
+	@Deprecated
 	private String requestMethod;
+	@Deprecated
 	private Object requestBodyDto;
+	@Deprecated
 	private Object responseBodyDto;
 	
 

@@ -2,6 +2,6 @@ package evolution.bean.swagger.http;
 
 import evolution.bean.swagger.http.httpValue.HttpValue;
 
-public class Post implements Http {
-	private HttpValue post;
+public class Delete implements Http {
+	private HttpValue delete;
 }

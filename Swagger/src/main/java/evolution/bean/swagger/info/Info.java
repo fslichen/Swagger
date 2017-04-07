@@ -5,5 +5,6 @@ public class Info {
 	private String version;
 	private String title;
 	private String termsOfService;
-	
+	private Contact contact;
+	private License license;
 }
