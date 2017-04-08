@@ -2,13 +2,12 @@ package evolution;
 
 import org.junit.Test;
 
-import evolution.controller.AnyController;
 import evolution.controller.dto.RequestDto;
 
 public class ApplicationTest {
 	@Test
-	public void testSwagger() {
-		Application.swagger(AnyController.class);
+	public void testIsBasic() {
+		System.out.println(Ref.isBasic("Hello World"));
 	}
 	
 	@Test

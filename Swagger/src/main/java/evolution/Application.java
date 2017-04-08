@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import evolution.controller.AnyController;
 import evolution.controller.dto.AnyDto;
 import evolution.dto.Definition;
 import evolution.dto.Delete;
@@ -74,6 +75,9 @@ public class Application {
 	}
 	
 	public static Definition definition(Object dto) {
+		if (Ref.isBasic(dto)) {
+			return null;
+		}
 		Map<String, Property> properties = new LinkedHashMap<>();
 		Field[] fields = dto.getClass().getDeclaredFields();
 		for (Field field : fields) {
@@ -85,7 +89,7 @@ public class Application {
 			} else if (Ref.isList(field)) {
 				property.setType("array");
 				Items items = new Items();
-				items.set$ref(DEFINITIONS + fieldClassName);
+				items.set$ref(DEFINITIONS + Ref.simpleClassName(Ref.genericClass(field, 0)));
 				property.setItems(items);
 			}  else {
 				property.setType("object");
@@ -106,7 +110,7 @@ public class Application {
 	}
 
 	@SuppressWarnings({ "rawtypes" })
-	public static String swagger(Class controllerClass) {
+	public static void swagger(Class controllerClass) {
 		Map<String, Http> paths = new LinkedHashMap<>();
 		Map<String, Definition> definitions = new LinkedHashMap<>();
 		List<Method> methods = Arrays.asList(controllerClass.getDeclaredMethods())
@@ -168,7 +172,11 @@ public class Application {
 		swagger.setPaths(paths);
 		swagger.setDefinitions(definitions);
 		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
-		System.out.println(swagger);
-		return null;
+		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, true);
+	}
+	
+	@Test
+	public void testSwagger() {
+		Application.swagger(AnyController.class);
 	}
 }
