@@ -172,7 +172,7 @@ public class Application {
 		swagger.setPaths(paths);
 		swagger.setDefinitions(definitions);
 		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
-		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, new MyRepresenter(true, null).getRepresenter(), true);
+		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, new MyRepresenter(true, true, null), true);
 	}
 	
 	@Test
