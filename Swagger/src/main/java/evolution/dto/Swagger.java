@@ -1,12 +1,7 @@
-package evolution.bean.swagger;
+package evolution.dto;
 
 import java.util.List;
 import java.util.Map;
-
-import evolution.bean.swagger.definitions.Dto;
-import evolution.bean.swagger.http.Http;
-import evolution.bean.swagger.info.Info;
-import evolution.bean.swagger.tag.Tag;
 
 public class Swagger {
 	private String swagger;

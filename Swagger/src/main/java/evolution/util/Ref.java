@@ -34,7 +34,7 @@ public class Ref {
 		}
 	}
 
-	public static Object defaultBasicObject(Class<?> clazz) {
+	public static Object defaultPrimitiveObject(Class<?> clazz) {
 		// TODO Add more criteria.
 		if (clazz == int.class || clazz == Integer.class) {
 			return 0;
@@ -48,12 +48,12 @@ public class Ref {
 		return null;
 	}
 
-	public static Object defaultBasicObject(Field field) {
-		return defaultBasicObject(field.getType());
+	public static Object defaultPrimitiveObject(Field field) {
+		return defaultPrimitiveObject(field.getType());
 	}
 
-	public static Object defaultBasicObject(Object object) {
-		return defaultBasicObject(object.getClass());
+	public static Object defaultPrimitiveObject(Object object) {
+		return defaultPrimitiveObject(object.getClass());
 	}
 
 	public static Object defaultObject(Class<?> clazz) {
@@ -77,14 +77,14 @@ public class Ref {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static Object defaultObject(Object object) {
 		try {
-			if (isBasic(object)) {
-				return defaultBasicObject(object);
+			if (isPrimitive(object)) {
+				return defaultPrimitiveObject(object);
 			}
 			Field[] fields = object.getClass().getDeclaredFields();
 			for (Field field : fields) {
 				field.setAccessible(true);
-				if (isBasic(field)) {
-					field.set(object, defaultBasicObject(field));
+				if (isPrimitive(field)) {
+					field.set(object, defaultPrimitiveObject(field));
 				} else if (isList(field)) {
 					List list = new LinkedList();
 					list.add(defaultObject(genericClass(field, 0)));
@@ -123,7 +123,7 @@ public class Ref {
 		return (Class<?>) actualTypeArguments(field)[i];
 	}
 
-	public static Boolean isBasic(Class<?> clazz) {
+	public static Boolean isPrimitive(Class<?> clazz) {
 		// TODO Add more criteria.
 		if (clazz == int.class || clazz == Integer.class
 				|| clazz == double.class || clazz == Double.class
@@ -134,12 +134,12 @@ public class Ref {
 		return false;
 	}
 
-	public static Boolean isBasic(Field field) {
-		return isBasic(field.getType());
+	public static Boolean isPrimitive(Field field) {
+		return isPrimitive(field.getType());
 	}
 
-	public static Boolean isBasic(Object object) {
-		return isBasic(object.getClass());
+	public static Boolean isPrimitive(Object object) {
+		return isPrimitive(object.getClass());
 	}
 
 	public static Boolean isList(Class<?> clazz) {
