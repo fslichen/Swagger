@@ -5,10 +5,11 @@ import java.util.Map;
 public class AnyDto {
 	private int id;
 
+	
 	@Override
 	public String toString() {
 		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", salary=" + salary + ", paths=" + paths + ", rent="
-				+ rent + ", gender=" + gender + ", address=" + address + "]";
+				+ rent + ", gender=" + gender + ", address=" + address + ", anotherDto=" + anotherDto + "]";
 	}
 	private Integer zipCode;
 	private Double salary;
@@ -60,4 +61,12 @@ public class AnyDto {
 	private double rent;
 	private String gender;
 	private String address;
+	private AnotherDto anotherDto;
+
+	public AnotherDto getAnotherDto() {
+		return anotherDto;
+	}
+	public void setAnotherDto(AnotherDto anotherDto) {
+		this.anotherDto = anotherDto;
+	}
 }

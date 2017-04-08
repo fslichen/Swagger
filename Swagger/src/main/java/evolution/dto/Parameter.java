@@ -7,7 +7,6 @@ public class Parameter {
 	private Boolean required;
 	private Schema schema;
 	private String type;
-	private Items items;
 	private String collectionFormat;
 	private String format;
 	private Integer maximum;
@@ -27,10 +26,6 @@ public class Parameter {
 	
 	public String getIn() {
 		return in;
-	}
-	
-	public Items getItems() {
-		return items;
 	}
 	
 	public Integer getMaximum() {
@@ -73,10 +68,6 @@ public class Parameter {
 		this.in = in;
 	}
 	
-	public void setItems(Items items) {
-		this.items = items;
-	}
-	
 	public void setMaximum(Integer maximum) {
 		this.maximum = maximum;
 	}
@@ -100,11 +91,11 @@ public class Parameter {
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "Parameter [in=" + in + ", name=" + name + ", description=" + description + ", required=" + required
-				+ ", schema=" + schema + ", type=" + type + ", items=" + items + ", collectionFormat="
-				+ collectionFormat + ", format=" + format + ", maximum=" + maximum + ", minimum=" + minimum + "]";
+				+ ", schema=" + schema + ", type=" + type + ", collectionFormat=" + collectionFormat + ", format="
+				+ format + ", maximum=" + maximum + ", minimum=" + minimum + "]";
 	}
 }

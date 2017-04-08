@@ -2,11 +2,11 @@ package evolution.dto;
 
 import java.util.Map;
 
-public class Dto {
+public class Definition {
 	private String type;
-	private Map<String, DtoType> properties;
+	private Map<String, Property> properties;
 	
-	public Map<String, DtoType> getProperties() {
+	public Map<String, Property> getProperties() {
 		return properties;
 	}
 	
@@ -14,16 +14,16 @@ public class Dto {
 		return type;
 	}
 	
-	public void setProperties(Map<String, DtoType> properties) {
+	public void setProperties(Map<String, Property> properties) {
 		this.properties = properties;
 	}
 	
 	public void setType(String type) {
 		this.type = type;
 	}
-	
+
 	@Override
 	public String toString() {
-		return "Dto [type=" + type + ", properties=" + properties + "]";
+		return "Definition [type=" + type + ", properties=" + properties + "]";
 	}
 }

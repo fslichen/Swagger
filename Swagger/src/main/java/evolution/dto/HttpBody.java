@@ -1,6 +1,7 @@
 package evolution.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public class HttpBody {
 	private List<String> tags;
@@ -9,18 +10,18 @@ public class HttpBody {
 	private String operationId;
 	private List<String> consumes;
 	private List<String> produces;
-	private List<Parameter> parameters;
-	private Responses responses;
 	private List<Object> security;
+	private List<Parameter> parameters;
+	private Map<String, Response> responses;
 	
 	public List<String> getConsumes() {
 		return consumes;
 	}
-	
+
 	public String getDescription() {
 		return description;
 	}
-	
+
 	public String getOperationId() {
 		return operationId;
 	}
@@ -33,7 +34,7 @@ public class HttpBody {
 		return produces;
 	}
 	
-	public Responses getResponses() {
+	public Map<String, Response> getResponses() {
 		return responses;
 	}
 	
@@ -69,7 +70,7 @@ public class HttpBody {
 		this.produces = produces;
 	}
 	
-	public void setResponses(Responses responses) {
+	public void setResponses(Map<String, Response> responses) {
 		this.responses = responses;
 	}
 	
@@ -84,11 +85,11 @@ public class HttpBody {
 	public void setTags(List<String> tags) {
 		this.tags = tags;
 	}
-	
+
 	@Override
 	public String toString() {
 		return "HttpBody [tags=" + tags + ", summary=" + summary + ", description=" + description + ", operationId="
-				+ operationId + ", consumes=" + consumes + ", produces=" + produces + ", parameters=" + parameters
-				+ ", responses=" + responses + ", security=" + security + "]";
+				+ operationId + ", consumes=" + consumes + ", produces=" + produces + ", security=" + security
+				+ ", parameters=" + parameters + ", responses=" + responses + "]";
 	}
 }

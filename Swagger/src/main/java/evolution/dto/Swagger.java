@@ -11,23 +11,14 @@ public class Swagger {
 	private List<Tag> tags;
 	private List<String> schemes;
 	private Map<String, Http> paths;
-	private String uri;
 	private Map<String, Object> securityDefinitions;
-	private Map<String, Dto> definitions;
+	private Map<String, Definition> definitions;
 	
-	@Deprecated
-	private String requestMethod;
-	@Deprecated
-	private Object requestBodyDto;
-	@Deprecated
-	private Object responseBodyDto;
-	
-
 	public String getBasePath() {
 		return basePath;
 	}
 
-	public Map<String, Dto> getDefinitions() {
+	public Map<String, Definition> getDefinitions() {
 		return definitions;
 	}
 
@@ -41,18 +32,6 @@ public class Swagger {
 
 	public Map<String, Http> getPaths() {
 		return paths;
-	}
-
-	public Object getRequestBodyDto() {
-		return requestBodyDto;
-	}
-	
-	public String getRequestMethod() {
-		return requestMethod;
-	}
-	
-	public Object getResponseBodyDto() {
-		return responseBodyDto;
 	}
 
 	public List<String> getSchemes() {
@@ -71,15 +50,11 @@ public class Swagger {
 		return tags;
 	}
 
-	public String getUri() {
-		return uri;
-	}
-
 	public void setBasePath(String basePath) {
 		this.basePath = basePath;
 	}
 
-	public void setDefinitions(Map<String, Dto> definitions) {
+	public void setDefinitions(Map<String, Definition> definitions) {
 		this.definitions = definitions;
 	}
 
@@ -93,18 +68,6 @@ public class Swagger {
 
 	public void setPaths(Map<String, Http> paths) {
 		this.paths = paths;
-	}
-
-	public void setRequestBodyDto(Object requestBodyDto) {
-		this.requestBodyDto = requestBodyDto;
-	}
-
-	public void setRequestMethod(String requestMethod) {
-		this.requestMethod = requestMethod;
-	}
-
-	public void setResponseBodyDto(Object responseBodyDto) {
-		this.responseBodyDto = responseBodyDto;
 	}
 
 	public void setSchemes(List<String> schemes) {
@@ -126,12 +89,7 @@ public class Swagger {
 	@Override
 	public String toString() {
 		return "Swagger [swagger=" + swagger + ", info=" + info + ", host=" + host + ", basePath=" + basePath
-				+ ", tags=" + tags + ", schemes=" + schemes + ", paths=" + paths + ", uri=" + uri
-				+ ", securityDefinitions=" + securityDefinitions + ", definitions=" + definitions + ", requestMethod="
-				+ requestMethod + ", requestBodyDto=" + requestBodyDto + ", responseBodyDto=" + responseBodyDto + "]";
-	}
-
-	public void setUri(String uri) {
-		this.uri = uri;
+				+ ", tags=" + tags + ", schemes=" + schemes + ", paths=" + paths + ", securityDefinitions="
+				+ securityDefinitions + ", definitions=" + definitions + "]";
 	}
 }
