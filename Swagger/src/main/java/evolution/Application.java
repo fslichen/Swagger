@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import evolution.dto.RequestMappingDto;
 import evolution.dto.Swagger;
-import evolution.util.Ref;
 import evolution.util.Sys;
 
 public class Application {
