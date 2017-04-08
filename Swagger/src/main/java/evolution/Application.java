@@ -65,7 +65,7 @@ public class Application {
 	}
 	
 	public static void addDefinition(Object dto, Map<String, Definition> definitions) {
-		if (dto == null) {
+		if (Ref.isBasic(dto)) {
 			return;
 		}
 		String dtoClassName = Ref.simpleClassName(dto);
@@ -172,7 +172,7 @@ public class Application {
 		swagger.setPaths(paths);
 		swagger.setDefinitions(definitions);
 		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
-		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, true);
+		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, new MyRepresenter(true, null).getRepresenter(), true);
 	}
 	
 	@Test
