@@ -3,22 +3,21 @@ package evolution.controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import evolution.controller.dto.RequestDto;
 import evolution.controller.dto.ResponseDto;
 
 @RequestMapping(value = "/app")
+@RestController
 public class AnyController {
-	@ResponseBody
-	@RequestMapping(value = "/post", method = RequestMethod.POST)
-	public ResponseDto post(@RequestBody RequestDto dto) {
+	@RequestMapping(value = "/evolution/0", method = RequestMethod.POST)
+	public ResponseDto evolution0(@RequestBody RequestDto dto) {
 		return null;
 	}
 	
-	@ResponseBody
-	@RequestMapping(value = "/patch", method = RequestMethod.PATCH)
-	public String patch(@RequestBody String json) {
+	@RequestMapping(value = "/evolution/1", method = RequestMethod.PATCH)
+	public String evolution1(@RequestBody String json) {
 		return null;
 	}
 }

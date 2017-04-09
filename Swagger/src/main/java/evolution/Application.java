@@ -64,36 +64,33 @@ public class Application {
 		return requestMappingDto;
 	}
 	
-	public static void addDefinition(Object dto, Map<String, Definition> definitions) {
-		if (Ref.isBasic(dto)) {
+	public static void addDefinition(Object object, Map<String, Definition> definitions) {
+		if (Ref.isBasic(object)) {
 			return;
 		}
-		String dtoClassName = Ref.simpleClassName(dto);
+		String dtoClassName = Ref.simpleClassName(object);
 		if (!definitions.containsKey(dtoClassName)) {
-			definitions.put(dtoClassName, definition(dto));
+			definitions.put(dtoClassName, definition(object));
 		}
 	}
 	
-	public static Definition definition(Object dto) {
-		if (Ref.isBasic(dto)) {
+	public static Definition definition(Object object) {
+		if (Ref.isBasic(object)) {
 			return null;
 		}
 		Map<String, Property> properties = new LinkedHashMap<>();
-		Field[] fields = dto.getClass().getDeclaredFields();
+		Field[] fields = object.getClass().getDeclaredFields();
 		for (Field field : fields) {
 			field.setAccessible(true);
 			Property property = new Property();
-			String fieldClassName = Ref.simpleClassName(field);
 			if (Ref.isBasic(field)) {
-				property.setType(fieldClassName.toLowerCase());
+				property.setType(type(field));
 			} else if (Ref.isList(field)) {
 				property.setType("array");
-				Items items = new Items();
-				items.set$ref(DEFINITIONS + Ref.simpleClassName(Ref.genericClass(field, 0)));
-				property.setItems(items);
+				property.setItems(listItems(field));
 			}  else {
 				property.setType("object");
-				property.set$ref(DEFINITIONS + fieldClassName);
+				property.set$ref(DEFINITIONS + Ref.simpleClassName(field));
 			}
 			properties.put(field.getName(), property);
 		}
@@ -108,7 +105,62 @@ public class Application {
 		AnyDto anyDto = new AnyDto();
 		System.out.println(definition(anyDto));
 	}
-
+	
+	public static Items listItems(Method method, boolean isRequestBody) {
+		Items items = new Items();
+		Class<?> clazz = null;
+		if (isRequestBody) {
+			clazz = Ref.genericClass(method, RequestBody.class, 0);
+		} else {
+			clazz = Ref.genericClass(method, 0);
+		}
+		if (Ref.isBasic(clazz)) {
+			items.setType(clazz.getSimpleName().toLowerCase());
+		} else {
+			items.set$ref(DEFINITIONS + clazz.getSimpleName());
+		}
+		return items;
+	}
+	
+	public static Items listItems(Field field) {
+		Items items = new Items();
+		Class<?> clazz = Ref.genericClass(field, 0);
+		if (Ref.isBasic(clazz)) {
+			items.setType(clazz.getSimpleName().toLowerCase());
+		} else {
+			items.set$ref(DEFINITIONS + clazz.getSimpleName());
+		}
+		return items;
+	}
+	
+	public static Schema listSchema(Method method, boolean isRequestBody) {
+		Schema schema = new Schema();
+		schema.setItems(listItems(method, isRequestBody));
+		return schema;
+	}
+	
+	public static Schema refSchema(Object object) {
+		Schema schema = new Schema();
+		schema.set$ref(DEFINITIONS + Ref.simpleClassName(object));
+		return schema;
+	}
+	
+	public static Schema typeSchema(Object object) {
+		Schema schema = new Schema();
+		schema.setType(Ref.simpleClassName(object).toLowerCase());
+		return schema;
+	}
+	
+	public static String type(Object object) {
+		if (object instanceof Class) {
+			return Ref.simpleClassName((Class<?>) object).toLowerCase();
+		} else if (object instanceof Field) {
+			return Ref.simpleClassName((Field) object).toLowerCase();
+		} else {
+			return Ref.simpleClassName(object).toLowerCase();
+		}
+	}
+	
 	@SuppressWarnings({ "rawtypes" })
 	public static void swagger(Class controllerClass) {
 		Map<String, Http> paths = new LinkedHashMap<>();
@@ -121,18 +173,26 @@ public class Application {
 			// Request Body
 			Object requestBodyDto = requestBodyDto(method);
 			addDefinition(requestBodyDto, definitions);
-			Schema requestSchema = new Schema();// TODO The request body is not necessarily a DTO since it can also be a List.
-			requestSchema.set$ref(DEFINITIONS + Ref.simpleClassName(requestBodyDto));
 			Parameter parameter = new Parameter();
-			parameter.setSchema(requestSchema);
+			if (Ref.isBasic(requestBodyDto)) {
+				parameter.setType(type(requestBodyDto));
+			} else if (Ref.isList(requestBodyDto)) {
+				parameter.setSchema(listSchema(method, true));
+			} else {// POJO
+				parameter.setSchema(refSchema(requestBodyDto));
+			}
 			httpBody.setParameters(Arrays.asList(parameter));// TODO There can be more than one parameters.
 			// Response Body
 			Object responseBodyDto = responseBodyDto(method);
 			addDefinition(responseBodyDto, definitions);
-			Schema responseSchema = new Schema();// TODO The response body is not necessarily a DTO since it can also be a List.
-			responseSchema.set$ref(DEFINITIONS + Ref.simpleClassName(responseBodyDto));
 			Response response = new Response();
-			response.setSchema(responseSchema);
+			if (Ref.isBasic(responseBodyDto)) {
+				response.setSchema(typeSchema(responseBodyDto));
+			} else if (Ref.isList(responseBodyDto)) {
+				response.setSchema(listSchema(method, false));
+			} else {// POJO
+				response.setSchema(refSchema(responseBodyDto));
+			}
 			Map<String, Response> responses = new LinkedHashMap<>();
 			responses.put("200", response);// TODO Response code is not limited to 200.
 			httpBody.setResponses(responses);
