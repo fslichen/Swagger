@@ -13,7 +13,16 @@ public class Swagger {
 	private Map<String, Http> paths;
 	private Map<String, Object> securityDefinitions;
 	private Map<String, Definition> definitions;
+	private ExternalDocs externalDocs;
 	
+	public ExternalDocs getExternalDocs() {
+		return externalDocs;
+	}
+
+	public void setExternalDocs(ExternalDocs externalDocs) {
+		this.externalDocs = externalDocs;
+	}
+
 	public String getBasePath() {
 		return basePath;
 	}
@@ -90,6 +99,6 @@ public class Swagger {
 	public String toString() {
 		return "Swagger [swagger=" + swagger + ", info=" + info + ", host=" + host + ", basePath=" + basePath
 				+ ", tags=" + tags + ", schemes=" + schemes + ", paths=" + paths + ", securityDefinitions="
-				+ securityDefinitions + ", definitions=" + definitions + "]";
+				+ securityDefinitions + ", definitions=" + definitions + ", externalDocs=" + externalDocs + "]";
 	}
 }

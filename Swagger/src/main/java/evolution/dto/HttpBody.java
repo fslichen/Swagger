@@ -12,7 +12,7 @@ public class HttpBody {
 	private List<String> produces;
 	private List<Object> security;
 	private List<Parameter> parameters;
-	private Map<String, Response> responses;
+	private Map<Integer, Response> responses;
 	
 	public List<String> getConsumes() {
 		return consumes;
@@ -32,10 +32,6 @@ public class HttpBody {
 	
 	public List<String> getProduces() {
 		return produces;
-	}
-	
-	public Map<String, Response> getResponses() {
-		return responses;
 	}
 	
 	public List<Object> getSecurity() {
@@ -70,10 +66,6 @@ public class HttpBody {
 		this.produces = produces;
 	}
 	
-	public void setResponses(Map<String, Response> responses) {
-		this.responses = responses;
-	}
-	
 	public void setSecurity(List<Object> security) {
 		this.security = security;
 	}
@@ -84,6 +76,14 @@ public class HttpBody {
 	
 	public void setTags(List<String> tags) {
 		this.tags = tags;
+	}
+
+	public Map<Integer, Response> getResponses() {
+		return responses;
+	}
+
+	public void setResponses(Map<Integer, Response> responses) {
+		this.responses = responses;
 	}
 
 	@Override

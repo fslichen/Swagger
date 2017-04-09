@@ -15,9 +15,4 @@ public class AnyController {
 	public ResponseDto evolution0(@RequestBody RequestDto dto) {
 		return null;
 	}
-	
-	@RequestMapping(value = "/evolution/1", method = RequestMethod.PATCH)
-	public String evolution1(@RequestBody String json) {
-		return null;
-	}
 }

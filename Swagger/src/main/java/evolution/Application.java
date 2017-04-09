@@ -15,12 +15,16 @@ import org.springframework.web.bind.annotation.RequestMethod;
 
 import evolution.controller.AnyController;
 import evolution.controller.dto.AnyDto;
+import evolution.dto.Contact;
 import evolution.dto.Definition;
 import evolution.dto.Delete;
+import evolution.dto.ExternalDocs;
 import evolution.dto.Get;
 import evolution.dto.Http;
 import evolution.dto.HttpBody;
+import evolution.dto.Info;
 import evolution.dto.Items;
+import evolution.dto.License;
 import evolution.dto.Parameter;
 import evolution.dto.Patch;
 import evolution.dto.Post;
@@ -30,6 +34,7 @@ import evolution.dto.RequestMappingDto;
 import evolution.dto.Response;
 import evolution.dto.Schema;
 import evolution.dto.Swagger;
+import evolution.dto.Tag;
 
 public class Application {
 	public static final String DEFINITIONS = "#/definitions/";
@@ -65,45 +70,33 @@ public class Application {
 	}
 	
 	public static void addDefinition(Object object, Map<String, Definition> definitions) {
-		if (Ref.isBasic(object)) {
-			return;
-		}
-		String dtoClassName = Ref.simpleClassName(object);
-		if (!definitions.containsKey(dtoClassName)) {
-			definitions.put(dtoClassName, definition(object));
-		}
+		addDefinition(object.getClass(), definitions);
 	}
 	
-	public static Definition definition(Object object) {
-		if (Ref.isBasic(object)) {
-			return null;
-		}
-		Map<String, Property> properties = new LinkedHashMap<>();
-		Field[] fields = object.getClass().getDeclaredFields();
-		for (Field field : fields) {
-			field.setAccessible(true);
-			Property property = new Property();
-			if (Ref.isBasic(field)) {
-				property.setType(type(field));
-			} else if (Ref.isList(field)) {
-				property.setType("array");
-				property.setItems(listItems(field));
-			}  else {
-				property.setType("object");
-				property.set$ref(DEFINITIONS + Ref.simpleClassName(field));
+	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions) {
+		String objectClassName = Ref.simpleClassName(clazz);
+		if (!Ref.isBasic(clazz) && !definitions.containsKey(objectClassName)) {
+			Map<String, Property> properties = new LinkedHashMap<>();
+			Field[] fields = clazz.getDeclaredFields();
+			for (Field field : fields) {
+				field.setAccessible(true);
+				Property property = new Property();
+				if (Ref.isBasic(field)) {
+					property.setType(type(field));
+				} else if (Ref.isList(field)) {
+					property.setType("array");
+					property.setItems(listItems(field));
+				}  else {
+					property.set$ref(DEFINITIONS + Ref.simpleClassName(field));
+					addDefinition(field.getType(), definitions);
+				}
+				properties.put(field.getName(), property);
 			}
-			properties.put(field.getName(), property);
+			Definition definition = new Definition();
+			definition.setType("object");
+			definition.setProperties(properties);
+			definitions.put(objectClassName, definition);
 		}
-		Definition definition = new Definition();
-		definition.setType("object");
-		definition.setProperties(properties);
-		return definition;
-	}
-	
-	@Test
-	public void testDefinition() {
-		AnyDto anyDto = new AnyDto();
-		System.out.println(definition(anyDto));
 	}
 	
 	public static Items listItems(Method method, boolean isRequestBody) {
@@ -152,12 +145,21 @@ public class Application {
 	}
 	
 	public static String type(Object object) {
+		String className;
 		if (object instanceof Class) {
-			return Ref.simpleClassName((Class<?>) object).toLowerCase();
+			className = Ref.simpleClassName((Class<?>) object).toLowerCase();
 		} else if (object instanceof Field) {
-			return Ref.simpleClassName((Field) object).toLowerCase();
+			className = Ref.simpleClassName((Field) object).toLowerCase();
 		} else {
-			return Ref.simpleClassName(object).toLowerCase();
+			className = Ref.simpleClassName(object).toLowerCase();
+		}
+		switch (className) {
+		case "int":
+			return "integer";
+		case "double":
+			return "number";
+		default:
+			return className;
 		}
 	}
 	
@@ -170,6 +172,8 @@ public class Application {
 				.collect(Collectors.toList());
 		for (Method method : methods) {
 			HttpBody httpBody = new HttpBody();
+			httpBody.setConsumes(Arrays.asList("application/json"));
+			httpBody.setProduces(Arrays.asList("application/json"));
 			// Request Body
 			Object requestBodyDto = requestBodyDto(method);
 			addDefinition(requestBodyDto, definitions);
@@ -181,6 +185,8 @@ public class Application {
 			} else {// POJO
 				parameter.setSchema(refSchema(requestBodyDto));
 			}
+			parameter.setName("requestBody");
+			parameter.setIn("body");
 			httpBody.setParameters(Arrays.asList(parameter));// TODO There can be more than one parameters.
 			// Response Body
 			Object responseBodyDto = responseBodyDto(method);
@@ -193,8 +199,8 @@ public class Application {
 			} else {// POJO
 				response.setSchema(refSchema(responseBodyDto));
 			}
-			Map<String, Response> responses = new LinkedHashMap<>();
-			responses.put("200", response);// TODO Response code is not limited to 200.
+			Map<Integer, Response> responses = new LinkedHashMap<>();
+			responses.put(200, response);// TODO Response code is not limited to 200.
 			httpBody.setResponses(responses);
 			// Request Mapping
 			RequestMappingDto requestMappingDto = requestMappingDto(method);
@@ -229,10 +235,46 @@ public class Application {
 			paths.put(requestMappingDto.getUri(), http);
 		}
 		Swagger swagger = new Swagger();
+		swagger.setSwagger("2.0");
+		swagger.setInfo(info());
+		swagger.setHost("anyHost");
+		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
+		swagger.setTags(Arrays.asList(tag()));
+		swagger.setSchemes(Arrays.asList("http"));
 		swagger.setPaths(paths);
 		swagger.setDefinitions(definitions);
-		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
+		swagger.setExternalDocs(externalDocs());
 		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, new MyRepresenter(true, true, null), true);
+	}
+	
+	public static ExternalDocs externalDocs() {
+		ExternalDocs externalDocs = new ExternalDocs();
+		externalDocs.setDescription("anyDescription");
+		externalDocs.setUrl("http://www.anyUrl.com");
+		return externalDocs;
+	}
+	
+	public static Tag tag() {
+		Tag tag = new Tag();
+		tag.setName("anyName");
+		tag.setDescription("anyDescription");
+		tag.setExternalDocs(externalDocs());
+		return tag;
+	}
+	
+	public static Info info() {
+		Info info = new Info();
+		info.setDescription("anyDescription");
+		info.setVersion("1.0.0");
+		info.setTitle("anyTitle");
+		info.setTermsOfService("http://swagger.io/terms/");
+		Contact contact = new Contact();
+		contact.setEmail("fslichen863@gmail.com");
+		info.setContact(contact);
+		License license = new License();
+		license.setUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
+		license.setName("Apache 2.0");
+		return info;
 	}
 	
 	@Test
