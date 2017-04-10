@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import evolution.dto.AdditionalProperties;
 import evolution.dto.Contact;
 import evolution.dto.Definition;
 import evolution.dto.Delete;
@@ -66,13 +67,27 @@ public class Application {
 		return requestMappingDto;
 	}
 	
-	public static void addDefinition(Object object, Map<String, Definition> definitions) {
-		addDefinition(object.getClass(), definitions);
+	public static void addDefinition(Object object, Map<String, Definition> definitions, Method method, Boolean isRequestBody) {
+		addDefinition(object.getClass(), definitions, method, isRequestBody);
 	}
 	
-	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions) {
-		String objectClassName = Ref.simpleClassName(clazz);
-		if (!Ref.isBasic(clazz) && !Ref.isList(clazz) && !Ref.isMap(clazz) && !definitions.containsKey(objectClassName)) {
+	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions, Method method, Boolean isRequestBody) {
+		String className = Ref.simpleClassName(clazz);
+		if (definitions.containsKey(className)) {
+			return;
+		} else if (Ref.isList(clazz)) {// TODO For the time being, the value of List should be neither List nor Map. 
+			if (isRequestBody) {
+				addDefinition(Ref.genericClass(method, RequestBody.class, 0), definitions, null, null);
+			} else {
+				addDefinition(Ref.genericClass(method, 0), definitions, null, null);
+			}
+		} else if (Ref.isMap(clazz)) {// TODO For the time being, the value of Map should be neither List nor Map.
+			if (isRequestBody) {
+				addDefinition(Ref.genericClass(method, RequestBody.class, 1), definitions, null, null);
+			} else {
+				addDefinition(Ref.genericClass(method, 1), definitions, null, null);
+			}
+		} else {
 			Map<String, Property> properties = new LinkedHashMap<>();
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
@@ -83,16 +98,18 @@ public class Application {
 				} else if (Ref.isList(field)) {
 					property.setType("array");
 					property.setItems(listItems(field));
-				}  else {
+				} else if (Ref.isMap(field)) {
+					addDefinition(Ref.genericClass(field, 1), definitions, null, null);
+				} else {// POJO
 					property.set$ref(DEFINITIONS + Ref.simpleClassName(field));
-					addDefinition(field.getType(), definitions);
+					addDefinition(field.getType(), definitions, null, null);
 				}
 				properties.put(field.getName(), property);
 			}
 			Definition definition = new Definition();
 			definition.setType("object");
 			definition.setProperties(properties);
-			definitions.put(objectClassName, definition);
+			definitions.put(className, definition);
 		}
 	}
 	
@@ -121,6 +138,24 @@ public class Application {
 			items.set$ref(DEFINITIONS + clazz.getSimpleName());
 		}
 		return items;
+	}
+	
+	public static Schema mapSchema(Method method, boolean isRequestBody) {
+		Class<?> mapValueClass = null;
+		if (isRequestBody) {
+			mapValueClass = Ref.genericClass(method, RequestBody.class, 1);
+		} else {// ResponseBody
+			mapValueClass = Ref.genericClass(method, 1);
+		}
+		AdditionalProperties additionalProperties = new AdditionalProperties();
+		if (Ref.isBasic(mapValueClass)) {
+			additionalProperties.setType(type(mapValueClass));
+		} else {// TODO List and Map can also be the value of a map.
+			additionalProperties.set$ref(DEFINITIONS + mapValueClass.getSimpleName());
+		}
+		Schema schema = new Schema();
+		schema.setAdditionalProperties(additionalProperties);
+		return schema;
 	}
 	
 	public static Schema listSchema(Method method, boolean isRequestBody) {
@@ -161,7 +196,7 @@ public class Application {
 	}
 	
 	@SuppressWarnings({ "rawtypes" })
-	public static void swagger(Class controllerClass) {
+	public static void swagger(Class controllerClass, String filePath) {
 		Map<String, Http> paths = new LinkedHashMap<>();
 		Map<String, Definition> definitions = new LinkedHashMap<>();
 		List<Method> methods = Arrays.asList(controllerClass.getDeclaredMethods())
@@ -173,12 +208,14 @@ public class Application {
 			httpBody.setProduces(Arrays.asList("application/json"));
 			// Request Body
 			Object requestBodyDto = requestBodyDto(method);
-			addDefinition(requestBodyDto, definitions);
+			addDefinition(requestBodyDto, definitions, method, true);
 			Parameter parameter = new Parameter();
 			if (Ref.isBasic(requestBodyDto)) {
 				parameter.setType(type(requestBodyDto));
 			} else if (Ref.isList(requestBodyDto)) {
 				parameter.setSchema(listSchema(method, true));
+			} else if (Ref.isMap(requestBodyDto)) {
+				parameter.setSchema(mapSchema(method, true));
 			} else {// POJO
 				parameter.setSchema(refSchema(requestBodyDto));
 			}
@@ -187,13 +224,15 @@ public class Application {
 			httpBody.setParameters(Arrays.asList(parameter));// TODO There can be more than one parameters.
 			// Response Body
 			Object responseBodyDto = responseBodyDto(method);
-			addDefinition(responseBodyDto, definitions);
+			addDefinition(responseBodyDto, definitions, method, false);
 			Response response = new Response();
 			response.setDescription("Success");
 			if (Ref.isBasic(responseBodyDto)) {
 				response.setSchema(typeSchema(responseBodyDto));
 			} else if (Ref.isList(responseBodyDto)) {
 				response.setSchema(listSchema(method, false));
+			} else if (Ref.isMap(responseBodyDto)) {
+				parameter.setSchema(mapSchema(method, false));
 			} else {// POJO
 				response.setSchema(refSchema(responseBodyDto));
 			}
@@ -242,7 +281,7 @@ public class Application {
 		swagger.setPaths(paths);
 		swagger.setDefinitions(definitions);
 		swagger.setExternalDocs(externalDocs());
-		Yml.write(swagger, "/home/chen/Desktop/Playground/Data/swagger.yml", true, new MyRepresenter(true, true, null), true);
+		Yml.write(swagger, filePath, true, new MyRepresenter(true, true, null), true);
 	}
 	
 	public static ExternalDocs externalDocs() {

@@ -1,6 +1,7 @@
 package evolution.controller.dto;
 
 import java.util.List;
+import java.util.Map;
 
 public class AnyDto {
 	private int id;
@@ -11,7 +12,7 @@ public class AnyDto {
 	private List<String> addresses;
 	private AnotherDto anotherDto;
 	private List<AnotherDto> anotherDtoList;
-//	private Map<String, AnotherDto> anotherDtoMap;
+	private Map<String, TheOtherDto> theOtherDtoMap;
 	
 	public List<String> getAddresses() {
 		return addresses;
@@ -24,10 +25,6 @@ public class AnyDto {
 	public List<AnotherDto> getAnotherDtoList() {
 		return anotherDtoList;
 	}
-	
-//	public Map<String, AnotherDto> getAnotherDtoMap() {
-//		return anotherDtoMap;
-//	}
 	
 	public String getGender() {
 		return gender;
@@ -56,14 +53,10 @@ public class AnyDto {
 	public void setAnotherDto(AnotherDto anotherDto) {
 		this.anotherDto = anotherDto;
 	}
-	
+
 	public void setAnotherDtoList(List<AnotherDto> anotherDtoList) {
 		this.anotherDtoList = anotherDtoList;
 	}
-
-//	public void setAnotherDtoMap(Map<String, AnotherDto> anotherDtoMap) {
-//		this.anotherDtoMap = anotherDtoMap;
-//	}
 
 	public void setGender(String gender) {
 		this.gender = gender;
@@ -89,13 +82,6 @@ public class AnyDto {
 	public String toString() {
 		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", rent=" + rent + ", salary=" + salary + ", gender="
 				+ gender + ", addresses=" + addresses + ", anotherDto=" + anotherDto + ", anotherDtoList="
-				+ anotherDtoList + "]";
+				+ anotherDtoList + ", theOtherDtoMap=" + theOtherDtoMap + "]";
 	}
-
-//	@Override
-//	public String toString() {
-//		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", rent=" + rent + ", salary=" + salary + ", gender="
-//				+ gender + ", addresses=" + addresses + ", anotherDto=" + anotherDto + ", anotherDtoList="
-//				+ anotherDtoList + ", anotherDtoMap=" + anotherDtoMap + "]";
-//	}
 }

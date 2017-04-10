@@ -7,6 +7,7 @@ import evolution.controller.AnyController;
 public class SwaggerTest {
 	@Test
 	public void testSwagger() {
-		Application.swagger(AnyController.class);
+		Application.swagger(AnyController.class, 
+				"/Users/chenli/Desktopswagger.yml");
 	}
 }
