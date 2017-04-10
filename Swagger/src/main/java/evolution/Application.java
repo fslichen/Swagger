@@ -8,13 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import evolution.controller.AnyController;
-import evolution.controller.dto.AnyDto;
 import evolution.dto.Contact;
 import evolution.dto.Definition;
 import evolution.dto.Delete;
@@ -275,10 +272,5 @@ public class Application {
 		license.setUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
 		license.setName("Apache 2.0");
 		return info;
-	}
-	
-	@Test
-	public void testSwagger() {
-		Application.swagger(AnyController.class);
 	}
 }
