@@ -307,7 +307,7 @@ public class Application {
 		info.setTitle("Unknown");
 		info.setTermsOfService("Unknown");
 		Contact contact = new Contact();
-		contact.setEmail("Unknown");
+		contact.setEmail("fslichen863@gmail.com");
 		info.setContact(contact);
 		License license = new License();
 		license.setUrl("Unknown");
