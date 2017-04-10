@@ -275,7 +275,7 @@ public class Application {
 		Swagger swagger = new Swagger();
 		swagger.setSwagger("2.0");
 		swagger.setInfo(info());
-		swagger.setHost("anyHost");
+		swagger.setHost("Unknown");
 		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
 		swagger.setTags(Arrays.asList(tag()));
 		swagger.setSchemes(Arrays.asList("http"));
@@ -287,31 +287,31 @@ public class Application {
 	
 	public static ExternalDocs externalDocs() {
 		ExternalDocs externalDocs = new ExternalDocs();
-		externalDocs.setDescription("anyDescription");
-		externalDocs.setUrl("http://www.anyUrl.com");
+		externalDocs.setDescription("Unknown");
+		externalDocs.setUrl("Unknown");
 		return externalDocs;
 	}
 	
 	public static Tag tag() {
 		Tag tag = new Tag();
-		tag.setName("anyName");
-		tag.setDescription("anyDescription");
+		tag.setName("Unknown");
+		tag.setDescription("Unknown");
 		tag.setExternalDocs(externalDocs());
 		return tag;
 	}
 	
 	public static Info info() {
 		Info info = new Info();
-		info.setDescription("anyDescription");
-		info.setVersion("1.0.0");
-		info.setTitle("anyTitle");
-		info.setTermsOfService("http://swagger.io/terms/");
+		info.setDescription("Unknown");
+		info.setVersion("Unknown");
+		info.setTitle("Unknown");
+		info.setTermsOfService("Unknown");
 		Contact contact = new Contact();
-		contact.setEmail("fslichen863@gmail.com");
+		contact.setEmail("Unknown");
 		info.setContact(contact);
 		License license = new License();
-		license.setUrl("http://www.apache.org/licenses/LICENSE-2.0.html");
-		license.setName("Apache 2.0");
+		license.setUrl("Unknown");
+		license.setName("Unknown");
 		return info;
 	}
 }
