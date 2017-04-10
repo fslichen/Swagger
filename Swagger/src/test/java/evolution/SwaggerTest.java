@@ -8,6 +8,6 @@ public class SwaggerTest {
 	@Test
 	public void testSwagger() {
 		Application.swagger(AnyController.class, 
-				"/Users/chenli/Desktopswagger.yml");
+				"/Users/chenli/Desktop/swagger.yml");
 	}
 }
