@@ -160,6 +160,7 @@ public class Application {
 	
 	public static Schema listSchema(Method method, boolean isRequestBody) {
 		Schema schema = new Schema();
+		schema.setType("array");
 		schema.setItems(listItems(method, isRequestBody));
 		return schema;
 	}
@@ -232,7 +233,7 @@ public class Application {
 			} else if (Ref.isList(responseBodyDto)) {
 				response.setSchema(listSchema(method, false));
 			} else if (Ref.isMap(responseBodyDto)) {
-				parameter.setSchema(mapSchema(method, false));
+				response.setSchema(mapSchema(method, false));
 			} else {// POJO
 				response.setSchema(refSchema(responseBodyDto));
 			}
