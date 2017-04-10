@@ -72,7 +72,7 @@ public class Application {
 	
 	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions) {
 		String objectClassName = Ref.simpleClassName(clazz);
-		if (!Ref.isBasic(clazz) && !definitions.containsKey(objectClassName)) {
+		if (!Ref.isBasic(clazz) && !Ref.isList(clazz) && !Ref.isMap(clazz) && !definitions.containsKey(objectClassName)) {
 			Map<String, Property> properties = new LinkedHashMap<>();
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
@@ -189,6 +189,7 @@ public class Application {
 			Object responseBodyDto = responseBodyDto(method);
 			addDefinition(responseBodyDto, definitions);
 			Response response = new Response();
+			response.setDescription("Success");
 			if (Ref.isBasic(responseBodyDto)) {
 				response.setSchema(typeSchema(responseBodyDto));
 			} else if (Ref.isList(responseBodyDto)) {

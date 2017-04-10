@@ -1,72 +1,101 @@
 package evolution.controller.dto;
 
-import java.util.Map;
+import java.util.List;
 
 public class AnyDto {
 	private int id;
-
-	
-	@Override
-	public String toString() {
-		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", salary=" + salary + ", paths=" + paths + ", rent="
-				+ rent + ", gender=" + gender + ", address=" + address + ", anotherDto=" + anotherDto + "]";
-	}
 	private Integer zipCode;
-	private Double salary;
-	
-	private Map<String, AnotherDto> paths;
-	
-	public Map<String, AnotherDto> getPaths() {
-		return paths;
-	}
-	public void setPaths(Map<String, AnotherDto> paths) {
-		this.paths = paths;
-	}
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
-	}
-	public Integer getZipCode() {
-		return zipCode;
-	}
-	public void setZipCode(Integer zipCode) {
-		this.zipCode = zipCode;
-	}
-	public Double getSalary() {
-		return salary;
-	}
-	public void setSalary(Double salary) {
-		this.salary = salary;
-	}
-	public double getRent() {
-		return rent;
-	}
-	public void setRent(double rent) {
-		this.rent = rent;
-	}
-	public String getGender() {
-		return gender;
-	}
-	public void setGender(String gender) {
-		this.gender = gender;
-	}
-	public String getAddress() {
-		return address;
-	}
-	public void setAddress(String address) {
-		this.address = address;
-	}
 	private double rent;
+	private Double salary;
 	private String gender;
-	private String address;
+	private List<String> addresses;
 	private AnotherDto anotherDto;
+	private List<AnotherDto> anotherDtoList;
+//	private Map<String, AnotherDto> anotherDtoMap;
+	
+	public List<String> getAddresses() {
+		return addresses;
+	}
 
 	public AnotherDto getAnotherDto() {
 		return anotherDto;
 	}
+	
+	public List<AnotherDto> getAnotherDtoList() {
+		return anotherDtoList;
+	}
+	
+//	public Map<String, AnotherDto> getAnotherDtoMap() {
+//		return anotherDtoMap;
+//	}
+	
+	public String getGender() {
+		return gender;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public double getRent() {
+		return rent;
+	}
+	
+	public Double getSalary() {
+		return salary;
+	}
+	
+	public Integer getZipCode() {
+		return zipCode;
+	}
+	
+	public void setAddresses(List<String> addresses) {
+		this.addresses = addresses;
+	}
+	
 	public void setAnotherDto(AnotherDto anotherDto) {
 		this.anotherDto = anotherDto;
 	}
+	
+	public void setAnotherDtoList(List<AnotherDto> anotherDtoList) {
+		this.anotherDtoList = anotherDtoList;
+	}
+
+//	public void setAnotherDtoMap(Map<String, AnotherDto> anotherDtoMap) {
+//		this.anotherDtoMap = anotherDtoMap;
+//	}
+
+	public void setGender(String gender) {
+		this.gender = gender;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public void setRent(double rent) {
+		this.rent = rent;
+	}
+
+	public void setSalary(Double salary) {
+		this.salary = salary;
+	}
+
+	public void setZipCode(Integer zipCode) {
+		this.zipCode = zipCode;
+	}
+
+	@Override
+	public String toString() {
+		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", rent=" + rent + ", salary=" + salary + ", gender="
+				+ gender + ", addresses=" + addresses + ", anotherDto=" + anotherDto + ", anotherDtoList="
+				+ anotherDtoList + "]";
+	}
+
+//	@Override
+//	public String toString() {
+//		return "AnyDto [id=" + id + ", zipCode=" + zipCode + ", rent=" + rent + ", salary=" + salary + ", gender="
+//				+ gender + ", addresses=" + addresses + ", anotherDto=" + anotherDto + ", anotherDtoList="
+//				+ anotherDtoList + ", anotherDtoMap=" + anotherDtoMap + "]";
+//	}
 }
