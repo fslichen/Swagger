@@ -1,0 +1,133 @@
+basePath: /app
+definitions:
+  AnotherDto:
+    properties:
+      uri:
+        type: string
+    type: object
+  TheOtherDto:
+    properties:
+      gpa:
+        type: number
+      isGraduate:
+        type: boolean
+    type: object
+  AnyDto:
+    properties:
+      id:
+        type: integer
+      zipCode:
+        type: integer
+      rent:
+        type: number
+      salary:
+        type: number
+      gender:
+        type: string
+      addresses:
+        items:
+          type: string
+        type: array
+      anotherDto:
+        $ref: '#/definitions/AnotherDto'
+      anotherDtoList:
+        items:
+          $ref: '#/definitions/AnotherDto'
+        type: array
+      theOtherDtoMap: {}
+    type: object
+  RequestDto:
+    properties:
+      name:
+        type: string
+      anyDto:
+        $ref: '#/definitions/AnyDto'
+      anotherDtos:
+        items:
+          $ref: '#/definitions/AnotherDto'
+        type: array
+    type: object
+  ResponseDto:
+    properties:
+      name:
+        type: string
+      nickName:
+        type: string
+      anyDto:
+        $ref: '#/definitions/AnyDto'
+    type: object
+externalDocs:
+  description: anyDescription
+  url: http://www.anyUrl.com
+host: anyHost
+info:
+  contact:
+    email: fslichen863@gmail.com
+  description: anyDescription
+  termsOfService: http://swagger.io/terms/
+  title: anyTitle
+  version: 1.0.0
+paths:
+  /evolution/0:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: requestBody
+        schema:
+          $ref: '#/definitions/RequestDto'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            $ref: '#/definitions/ResponseDto'
+  /evolution/1:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: requestBody
+        schema:
+          additionalProperties:
+            $ref: '#/definitions/RequestDto'
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            items:
+              $ref: '#/definitions/ResponseDto'
+            type: array
+  /evolution/2:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - in: body
+        name: requestBody
+        schema:
+          items:
+            $ref: '#/definitions/TheOtherDto'
+          type: array
+      produces:
+      - application/json
+      responses:
+        200:
+          description: Success
+          schema:
+            additionalProperties:
+              $ref: '#/definitions/TheOtherDto'
+schemes:
+- http
+swagger: '2.0'
+tags:
+- description: anyDescription
+  externalDocs:
+    description: anyDescription
+    url: http://www.anyUrl.com
+  name: anyName
