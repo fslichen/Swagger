@@ -37,19 +37,19 @@ import evolution.dto.Tag;
 public class Application {
 	public static final String DEFINITIONS = "#/definitions/";
 	
-	public static Object requestBodyDto(Method method) {
+	public static Class<?> requestBodyDto(Method method) {
 		try {
-			return Ref.defaultObject(Arrays.asList(method.getParameters())
+			return Arrays.asList(method.getParameters())
 					.stream().filter(x -> x.getAnnotation(RequestBody.class) != null)
-					.collect(Collectors.toList()).get(0).getType());
+					.collect(Collectors.toList()).get(0).getType();
 		} catch (Exception e) {
 			System.out.println("There is no request body or the request body count is greater than one.");
 			return null;
 		}
 	}
 	
-	public static Object responseBodyDto(Method method) {
-		return Ref.defaultObject(method.getReturnType());
+	public static Class<?> responseBodyDto(Method method) {
+		return method.getReturnType();
 	}
 	
 	// The object can either be a method or class object. 
@@ -165,27 +165,24 @@ public class Application {
 		return schema;
 	}
 	
-	public static Schema refSchema(Object object) {
+	public static Schema refSchema(Class<?> clazz) {
 		Schema schema = new Schema();
-		schema.set$ref(DEFINITIONS + Ref.simpleClassName(object));
+		schema.set$ref(DEFINITIONS + Ref.simpleClassName(clazz));
 		return schema;
 	}
 	
-	public static Schema typeSchema(Object object) {
+	public static Schema typeSchema(Class<?> clazz) {
 		Schema schema = new Schema();
-		schema.setType(Ref.simpleClassName(object).toLowerCase());
+		schema.setType(Ref.simpleClassName(clazz).toLowerCase());
 		return schema;
 	}
 	
-	public static String type(Object object) {
-		String className;
-		if (object instanceof Class) {
-			className = Ref.simpleClassName((Class<?>) object).toLowerCase();
-		} else if (object instanceof Field) {
-			className = Ref.simpleClassName((Field) object).toLowerCase();
-		} else {
-			className = Ref.simpleClassName(object).toLowerCase();
-		}
+	public static String type(Field field) {
+		return type(field.getType());
+	}
+	
+	public static String type(Class<?> clazz) {
+		String className = clazz.getSimpleName().toLowerCase();
 		switch (className) {
 		case "int":
 			return "integer";
@@ -208,34 +205,34 @@ public class Application {
 			httpBody.setConsumes(Arrays.asList("application/json"));
 			httpBody.setProduces(Arrays.asList("application/json"));
 			// Request Body
-			Object requestBodyDto = requestBodyDto(method);
-			addDefinition(requestBodyDto, definitions, method, true);
+			Class<?> requestBodyDtoClass = requestBodyDto(method);
+			addDefinition(requestBodyDtoClass, definitions, method, true);
 			Parameter parameter = new Parameter();
-			if (Ref.isBasic(requestBodyDto)) {
-				parameter.setType(type(requestBodyDto));
-			} else if (Ref.isList(requestBodyDto)) {
+			if (Ref.isBasic(requestBodyDtoClass)) {
+				parameter.setType(type(requestBodyDtoClass));
+			} else if (Ref.isList(requestBodyDtoClass)) {
 				parameter.setSchema(listSchema(method, true));
-			} else if (Ref.isMap(requestBodyDto)) {
+			} else if (Ref.isMap(requestBodyDtoClass)) {
 				parameter.setSchema(mapSchema(method, true));
 			} else {// POJO
-				parameter.setSchema(refSchema(requestBodyDto));
+				parameter.setSchema(refSchema(requestBodyDtoClass));
 			}
 			parameter.setName("requestBody");
 			parameter.setIn("body");
 			httpBody.setParameters(Arrays.asList(parameter));// TODO There can be more than one parameters.
 			// Response Body
-			Object responseBodyDto = responseBodyDto(method);
-			addDefinition(responseBodyDto, definitions, method, false);
+			Class<?> responseBodyDtoClass = responseBodyDto(method);
+			addDefinition(responseBodyDtoClass, definitions, method, false);
 			Response response = new Response();
 			response.setDescription("Success");
-			if (Ref.isBasic(responseBodyDto)) {
-				response.setSchema(typeSchema(responseBodyDto));
-			} else if (Ref.isList(responseBodyDto)) {
+			if (Ref.isBasic(responseBodyDtoClass)) {
+				response.setSchema(typeSchema(responseBodyDtoClass));
+			} else if (Ref.isList(responseBodyDtoClass)) {
 				response.setSchema(listSchema(method, false));
-			} else if (Ref.isMap(responseBodyDto)) {
+			} else if (Ref.isMap(responseBodyDtoClass)) {
 				response.setSchema(mapSchema(method, false));
 			} else {// POJO
-				response.setSchema(refSchema(responseBodyDto));
+				response.setSchema(refSchema(responseBodyDtoClass));
 			}
 			Map<Integer, Response> responses = new LinkedHashMap<>();
 			responses.put(200, response);// TODO Response code is not limited to 200.
