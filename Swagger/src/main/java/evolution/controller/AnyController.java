@@ -29,4 +29,9 @@ public class AnyController {
 	public Map<String, TheOtherDto> evolution2(@RequestBody List<TheOtherDto> dtos) {
 		return null;
 	}
+	
+	@RequestMapping(value = "/evolution/3", method = RequestMethod.POST)
+	public String evolution3(@RequestBody String requestString) {
+		return null;
+	}
 }

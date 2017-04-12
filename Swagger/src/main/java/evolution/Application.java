@@ -22,6 +22,7 @@ import evolution.dto.Http;
 import evolution.dto.HttpBody;
 import evolution.dto.Info;
 import evolution.dto.Items;
+import evolution.dto.Json;
 import evolution.dto.License;
 import evolution.dto.Parameter;
 import evolution.dto.Patch;
@@ -75,6 +76,14 @@ public class Application {
 		String className = Ref.simpleClassName(clazz);
 		if (definitions.containsKey(className)) {
 			return;
+		} else if (Ref.isString(clazz)) {// Normal String or JSON
+			if (!definitions.containsKey("Json")) {
+				Definition definition = new Definition();
+				definition.setType("object");
+				definitions.put("Json", definition);
+			}
+		} else if (Ref.isBasic(clazz)) {
+			return;
 		} else if (Ref.isList(clazz)) {// TODO For the time being, the value of List should be neither List nor Map. 
 			if (isRequestBody) {
 				addDefinition(Ref.genericClass(method, RequestBody.class, 0), definitions, null, null);
@@ -87,7 +96,7 @@ public class Application {
 			} else {
 				addDefinition(Ref.genericClass(method, 1), definitions, null, null);
 			}
-		} else {
+		} else {// POJO
 			Map<String, Property> properties = new LinkedHashMap<>();
 			Field[] fields = clazz.getDeclaredFields();
 			for (Field field : fields) {
@@ -208,7 +217,9 @@ public class Application {
 			Class<?> requestBodyDtoClass = requestBodyDto(method);
 			addDefinition(requestBodyDtoClass, definitions, method, true);
 			Parameter parameter = new Parameter();
-			if (Ref.isBasic(requestBodyDtoClass)) {
+			if (Ref.isString(requestBodyDtoClass)) {// Json
+				parameter.setSchema(refSchema(Json.class));
+			} else if (Ref.isBasic(requestBodyDtoClass)) {// Rare Case
 				parameter.setType(type(requestBodyDtoClass));
 			} else if (Ref.isList(requestBodyDtoClass)) {
 				parameter.setSchema(listSchema(method, true));
@@ -225,7 +236,9 @@ public class Application {
 			addDefinition(responseBodyDtoClass, definitions, method, false);
 			Response response = new Response();
 			response.setDescription("Success");
-			if (Ref.isBasic(responseBodyDtoClass)) {
+			if (Ref.isString(responseBodyDtoClass)) {// Json
+				response.setSchema(refSchema(Json.class));
+			} else if (Ref.isBasic(responseBodyDtoClass)) {// Rare Case
 				response.setSchema(typeSchema(responseBodyDtoClass));
 			} else if (Ref.isList(responseBodyDtoClass)) {
 				response.setSchema(listSchema(method, false));
