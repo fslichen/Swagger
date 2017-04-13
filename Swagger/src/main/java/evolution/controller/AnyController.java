@@ -3,6 +3,7 @@ package evolution.controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -32,6 +33,12 @@ public class AnyController {
 	
 	@RequestMapping(value = "/evolution/3", method = RequestMethod.POST)
 	public String evolution3(@RequestBody String requestString) {
+		return null;
+	}
+	
+	@RequestMapping(value = "/evolution/4/{name}/{gender}", method = RequestMethod.POST)
+	public ResponseDto evolution3(@PathVariable("name") String name,
+			@PathVariable("gender") String gender) {
 		return null;
 	}
 }

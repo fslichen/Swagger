@@ -4,10 +4,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -47,6 +49,13 @@ public class Application {
 			System.out.println("There is no request body or the request body count is greater than one.");
 			return null;
 		}
+	}
+	
+	public static List<String> pathVariables(Method method) {
+		return Arrays.asList(method.getParameters())
+				.stream().filter(x -> x.getAnnotation(PathVariable.class) != null)
+				.map(x -> x.getAnnotation(PathVariable.class).name())
+				.collect(Collectors.toList());
 	}
 	
 	public static Class<?> responseBodyDto(Method method) {
@@ -213,24 +222,36 @@ public class Application {
 			HttpBody httpBody = new HttpBody();
 			httpBody.setConsumes(Arrays.asList("application/json"));
 			httpBody.setProduces(Arrays.asList("application/json"));
+			// Path Variable
+			List<Parameter> parameters = new LinkedList<>();
+			List<String> pathVariables = pathVariables(method);
+			for (String pathVariable : pathVariables) {
+				Parameter pathParameter = new Parameter();
+				pathParameter.setIn("path");
+				pathParameter.setRequired(true);
+				pathParameter.setName(pathVariable);
+				pathParameter.setType("string");
+				parameters.add(pathParameter);
+			}
 			// Request Body
 			Class<?> requestBodyDtoClass = requestBodyDto(method);
 			addDefinition(requestBodyDtoClass, definitions, method, true);
-			Parameter parameter = new Parameter();
+			Parameter bodyParameter = new Parameter();
 			if (Ref.isString(requestBodyDtoClass)) {// Json
-				parameter.setSchema(refSchema(Json.class));
+				bodyParameter.setSchema(refSchema(Json.class));
 			} else if (Ref.isBasic(requestBodyDtoClass)) {// Rare Case
-				parameter.setType(type(requestBodyDtoClass));
+				bodyParameter.setType(type(requestBodyDtoClass));
 			} else if (Ref.isList(requestBodyDtoClass)) {
-				parameter.setSchema(listSchema(method, true));
+				bodyParameter.setSchema(listSchema(method, true));
 			} else if (Ref.isMap(requestBodyDtoClass)) {
-				parameter.setSchema(mapSchema(method, true));
+				bodyParameter.setSchema(mapSchema(method, true));
 			} else {// POJO
-				parameter.setSchema(refSchema(requestBodyDtoClass));
+				bodyParameter.setSchema(refSchema(requestBodyDtoClass));
 			}
-			parameter.setName("requestBody");
-			parameter.setIn("body");
-			httpBody.setParameters(Arrays.asList(parameter));// TODO There can be more than one parameters.
+			bodyParameter.setName("requestBody");
+			bodyParameter.setIn("body");
+			parameters.add(bodyParameter);
+			httpBody.setParameters(parameters);// TODO There can be more than one parameters.
 			// Response Body
 			Class<?> responseBodyDtoClass = responseBodyDto(method);
 			addDefinition(responseBodyDtoClass, definitions, method, false);
