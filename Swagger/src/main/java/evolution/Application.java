@@ -39,29 +39,32 @@ import evolution.dto.Tag;
 
 public class Application {
 	public static final String DEFINITIONS = "#/definitions/";
-	
+
 	public static Class<?> requestBodyDto(Method method) {
 		try {
 			return Arrays.asList(method.getParameters())
 					.stream().filter(x -> x.getAnnotation(RequestBody.class) != null)
 					.collect(Collectors.toList()).get(0).getType();
 		} catch (Exception e) {
-			System.out.println("There is no request body or the request body count is greater than one.");
 			return null;
 		}
 	}
-	
+
 	public static List<String> pathVariables(Method method) {
 		return Arrays.asList(method.getParameters())
 				.stream().filter(x -> x.getAnnotation(PathVariable.class) != null)
-				.map(x -> x.getAnnotation(PathVariable.class).name())
+				.map(x -> {
+					PathVariable pathVariable = x.getAnnotation(PathVariable.class);
+					String value = pathVariable.value();
+					return value != null ? value : pathVariable.name();
+				})
 				.collect(Collectors.toList());
 	}
-	
+
 	public static Class<?> responseBodyDto(Method method) {
 		return method.getReturnType();
 	}
-	
+
 	// The object can either be a method or class object. 
 	public static RequestMappingDto requestMappingDto(Object object) {
 		RequestMapping requestMapping = Ref.annotation(object, RequestMapping.class);
@@ -76,11 +79,11 @@ public class Application {
 		}
 		return requestMappingDto;
 	}
-	
+
 	public static void addDefinition(Object object, Map<String, Definition> definitions, Method method, Boolean isRequestBody) {
 		addDefinition(object.getClass(), definitions, method, isRequestBody);
 	}
-	
+
 	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions, Method method, Boolean isRequestBody) {
 		String className = Ref.simpleClassName(clazz);
 		if (definitions.containsKey(className)) {
@@ -130,7 +133,7 @@ public class Application {
 			definitions.put(className, definition);
 		}
 	}
-	
+
 	public static Items listItems(Method method, boolean isRequestBody) {
 		Items items = new Items();
 		Class<?> clazz = null;
@@ -146,7 +149,7 @@ public class Application {
 		}
 		return items;
 	}
-	
+
 	public static Items listItems(Field field) {
 		Items items = new Items();
 		Class<?> clazz = Ref.genericClass(field, 0);
@@ -157,7 +160,7 @@ public class Application {
 		}
 		return items;
 	}
-	
+
 	public static Schema mapSchema(Method method, boolean isRequestBody) {
 		Class<?> mapValueClass = null;
 		if (isRequestBody) {
@@ -175,30 +178,30 @@ public class Application {
 		schema.setAdditionalProperties(additionalProperties);
 		return schema;
 	}
-	
+
 	public static Schema listSchema(Method method, boolean isRequestBody) {
 		Schema schema = new Schema();
 		schema.setType("array");
 		schema.setItems(listItems(method, isRequestBody));
 		return schema;
 	}
-	
+
 	public static Schema refSchema(Class<?> clazz) {
 		Schema schema = new Schema();
 		schema.set$ref(DEFINITIONS + Ref.simpleClassName(clazz));
 		return schema;
 	}
-	
+
 	public static Schema typeSchema(Class<?> clazz) {
 		Schema schema = new Schema();
 		schema.setType(Ref.simpleClassName(clazz).toLowerCase());
 		return schema;
 	}
-	
+
 	public static String type(Field field) {
 		return type(field.getType());
 	}
-	
+
 	public static String type(Class<?> clazz) {
 		String className = clazz.getSimpleName().toLowerCase();
 		switch (className) {
@@ -210,7 +213,7 @@ public class Application {
 			return className;
 		}
 	}
-	
+
 	@SuppressWarnings({ "rawtypes" })
 	public static void swagger(Class controllerClass, String filePath) {
 		Map<String, Http> paths = new LinkedHashMap<>();
@@ -235,42 +238,48 @@ public class Application {
 			}
 			// Request Body
 			Class<?> requestBodyDtoClass = requestBodyDto(method);
-			addDefinition(requestBodyDtoClass, definitions, method, true);
-			Parameter bodyParameter = new Parameter();
-			if (Ref.isString(requestBodyDtoClass)) {// Json
-				bodyParameter.setSchema(refSchema(Json.class));
-			} else if (Ref.isBasic(requestBodyDtoClass)) {// Rare Case
-				bodyParameter.setType(type(requestBodyDtoClass));
-			} else if (Ref.isList(requestBodyDtoClass)) {
-				bodyParameter.setSchema(listSchema(method, true));
-			} else if (Ref.isMap(requestBodyDtoClass)) {
-				bodyParameter.setSchema(mapSchema(method, true));
-			} else {// POJO
-				bodyParameter.setSchema(refSchema(requestBodyDtoClass));
+			if (requestBodyDtoClass != null) {
+				addDefinition(requestBodyDtoClass, definitions, method, true);
+				Parameter bodyParameter = new Parameter();
+				if (Ref.isString(requestBodyDtoClass)) {// Json
+					bodyParameter.setSchema(refSchema(Json.class));
+				} else if (Ref.isBasic(requestBodyDtoClass)) {// Rare Case
+					bodyParameter.setType(type(requestBodyDtoClass));
+				} else if (Ref.isList(requestBodyDtoClass)) {
+					bodyParameter.setSchema(listSchema(method, true));
+				} else if (Ref.isMap(requestBodyDtoClass)) {
+					bodyParameter.setSchema(mapSchema(method, true));
+				} else {// POJO
+					bodyParameter.setSchema(refSchema(requestBodyDtoClass));
+				}
+				bodyParameter.setName("requestBody");
+				bodyParameter.setIn("body");
+				parameters.add(bodyParameter);
 			}
-			bodyParameter.setName("requestBody");
-			bodyParameter.setIn("body");
-			parameters.add(bodyParameter);
-			httpBody.setParameters(parameters);// TODO There can be more than one parameters.
+			if (parameters != null && parameters.size() > 0) {
+				httpBody.setParameters(parameters);// TODO There can be more than one parameters.
+			}
 			// Response Body
 			Class<?> responseBodyDtoClass = responseBodyDto(method);
-			addDefinition(responseBodyDtoClass, definitions, method, false);
-			Response response = new Response();
-			response.setDescription("Success");
-			if (Ref.isString(responseBodyDtoClass)) {// Json
-				response.setSchema(refSchema(Json.class));
-			} else if (Ref.isBasic(responseBodyDtoClass)) {// Rare Case
-				response.setSchema(typeSchema(responseBodyDtoClass));
-			} else if (Ref.isList(responseBodyDtoClass)) {
-				response.setSchema(listSchema(method, false));
-			} else if (Ref.isMap(responseBodyDtoClass)) {
-				response.setSchema(mapSchema(method, false));
-			} else {// POJO
-				response.setSchema(refSchema(responseBodyDtoClass));
+			if (responseBodyDtoClass != null) {
+				addDefinition(responseBodyDtoClass, definitions, method, false);
+				Response response = new Response();
+				response.setDescription("Success");
+				if (Ref.isString(responseBodyDtoClass)) {// Json
+					response.setSchema(refSchema(Json.class));
+				} else if (Ref.isBasic(responseBodyDtoClass)) {// Rare Case
+					response.setSchema(typeSchema(responseBodyDtoClass));
+				} else if (Ref.isList(responseBodyDtoClass)) {
+					response.setSchema(listSchema(method, false));
+				} else if (Ref.isMap(responseBodyDtoClass)) {
+					response.setSchema(mapSchema(method, false));
+				} else {// POJO
+					response.setSchema(refSchema(responseBodyDtoClass));
+				}
+				Map<Integer, Response> responses = new LinkedHashMap<>();
+				responses.put(200, response);// TODO Response code is not limited to 200.
+				httpBody.setResponses(responses);
 			}
-			Map<Integer, Response> responses = new LinkedHashMap<>();
-			responses.put(200, response);// TODO Response code is not limited to 200.
-			httpBody.setResponses(responses);
 			// Request Mapping
 			RequestMappingDto requestMappingDto = requestMappingDto(method);
 			Http http = null;
@@ -315,14 +324,14 @@ public class Application {
 		swagger.setExternalDocs(externalDocs());
 		Yml.write(swagger, filePath, true, new MyRepresenter(true, true, null), true);
 	}
-	
+
 	public static ExternalDocs externalDocs() {
 		ExternalDocs externalDocs = new ExternalDocs();
 		externalDocs.setDescription("Unknown");
 		externalDocs.setUrl("Unknown");
 		return externalDocs;
 	}
-	
+
 	public static Tag tag() {
 		Tag tag = new Tag();
 		tag.setName("Unknown");
@@ -330,7 +339,7 @@ public class Application {
 		tag.setExternalDocs(externalDocs());
 		return tag;
 	}
-	
+
 	public static Info info() {
 		Info info = new Info();
 		info.setDescription("Unknown");
