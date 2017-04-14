@@ -9,10 +9,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import evolution.dto.AdditionalProperties;
 import evolution.dto.Contact;
@@ -37,9 +39,17 @@ import evolution.dto.Schema;
 import evolution.dto.Swagger;
 import evolution.dto.Tag;
 
-public class Application {
+public class SwaggerFactory {
 	public static final String DEFINITIONS = "#/definitions/";
 
+	public static void swaggers(String projectPath, String projectBasePath, String destinationPath) {
+		List<Class<?>> classes = new LinkedList<>();
+		classes = FileUtil.classes(projectPath, projectBasePath, Arrays.asList(RestController.class, Controller.class), classes);
+		for (Class<?> clazz : classes) {
+			swagger(clazz, destinationPath + "/" + clazz.getSimpleName() + ".yaml");
+		}
+	}
+	
 	public static Class<?> requestBodyDto(Method method) {
 		try {
 			return Arrays.asList(method.getParameters())
@@ -69,6 +79,11 @@ public class Application {
 	public static RequestMappingDto requestMappingDto(Object object) {
 		RequestMapping requestMapping = Ref.annotation(object, RequestMapping.class);
 		RequestMappingDto requestMappingDto = new RequestMappingDto();
+		if (requestMapping == null) {
+			requestMappingDto.setUri("/");
+			requestMappingDto.setRequestMethod("GET");
+			return requestMappingDto;
+		}
 		String[] uris = requestMapping.value();
 		if (uris.length > 0) {
 			requestMappingDto.setUri(uris[0]);

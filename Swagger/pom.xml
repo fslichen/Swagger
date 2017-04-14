@@ -33,5 +33,10 @@
 			<artifactId>Snakeyaml</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		<dependency>
+			<groupId>com.evolution</groupId>
+			<artifactId>File</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 	</dependencies>
 </project>
