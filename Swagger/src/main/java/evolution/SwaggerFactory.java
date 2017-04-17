@@ -10,7 +10,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -75,22 +80,43 @@ public class SwaggerFactory {
 		return method.getReturnType();
 	}
 
-	// The object can either be a method or class object. 
+	public static String firstUri(String[] uris) {
+		 return uris.length > 0 ? uris[0] : "/";
+	}
+	
+	// The object can either be a method or a class. 
 	public static RequestMappingDto requestMappingDto(Object object) {
-		RequestMapping requestMapping = Ref.annotation(object, RequestMapping.class);
 		RequestMappingDto requestMappingDto = new RequestMappingDto();
-		if (requestMapping == null) {
+		RequestMapping requestMapping = Ref.annotation(object, RequestMapping.class);
+		GetMapping getMapping = Ref.annotation(object, GetMapping.class);
+		PostMapping postMapping = Ref.annotation(object, PostMapping.class);
+		PatchMapping patchMapping = Ref.annotation(object, PatchMapping.class);
+		DeleteMapping deleteMapping = Ref.annotation(object, DeleteMapping.class);
+		PutMapping putMapping = Ref.annotation(object, PutMapping.class);
+		if (requestMapping != null) {
+			requestMappingDto.setUri(firstUri(requestMapping.value()));
+			RequestMethod[] requestMethods = requestMapping.method();
+			if (requestMethods.length > 0) {
+				requestMappingDto.setRequestMethod(requestMethods[0].name());
+			}
+		} else if (getMapping != null) {
+			requestMappingDto.setUri(firstUri(getMapping.value()));
+			requestMappingDto.setRequestMethod("GET");
+		} else if (postMapping != null) {
+			requestMappingDto.setUri(firstUri(postMapping.value()));
+			requestMappingDto.setRequestMethod("POST");
+		} else if (patchMapping != null) {
+			requestMappingDto.setUri(firstUri(patchMapping.value()));
+			requestMappingDto.setRequestMethod("PATCH");
+		} else if (deleteMapping != null) {
+			requestMappingDto.setUri(firstUri(deleteMapping.value()));
+			requestMappingDto.setRequestMethod("DELETE");
+		} else if (putMapping != null) {
+			requestMappingDto.setUri(firstUri(putMapping.value()));
+			requestMappingDto.setRequestMethod("PUT");
+		} else {
 			requestMappingDto.setUri("/");
 			requestMappingDto.setRequestMethod("GET");
-			return requestMappingDto;
-		}
-		String[] uris = requestMapping.value();
-		if (uris.length > 0) {
-			requestMappingDto.setUri(uris[0]);
-		}
-		RequestMethod[] requestMethods = requestMapping.method();
-		if (requestMethods.length > 0) {
-			requestMappingDto.setRequestMethod(requestMethods[0].name());
 		}
 		return requestMappingDto;
 	}
@@ -229,12 +255,21 @@ public class SwaggerFactory {
 		}
 	}
 
+	public static Boolean isRequestMethod(Method method) {
+		return method.getAnnotation(RequestMapping.class) != null
+				|| method.getAnnotation(GetMapping.class) != null
+				|| method.getAnnotation(PostMapping.class) != null
+				|| method.getAnnotation(PatchMapping.class) != null
+				|| method.getAnnotation(DeleteMapping.class) != null
+				|| method.getAnnotation(PutMapping.class) != null;
+	}
+	
 	@SuppressWarnings({ "rawtypes" })
 	public static void swagger(Class controllerClass, String filePath) {
 		Map<String, Http> paths = new LinkedHashMap<>();
 		Map<String, Definition> definitions = new LinkedHashMap<>();
 		List<Method> methods = Arrays.asList(controllerClass.getDeclaredMethods())
-				.stream().filter(x -> x.getAnnotation(RequestMapping.class) != null)
+				.stream().filter(x -> isRequestMethod(x))
 				.collect(Collectors.toList());
 		for (Method method : methods) {
 			HttpBody httpBody = new HttpBody();

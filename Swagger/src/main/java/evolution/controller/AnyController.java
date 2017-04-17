@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -39,6 +40,11 @@ public class AnyController {
 	@RequestMapping(value = "/evolution/4/{name}/{gender}", method = RequestMethod.POST)
 	public ResponseDto evolution3(@PathVariable("name") String name,
 			@PathVariable("gender") String gender) {
+		return null;
+	}
+	
+	@PostMapping("/evolution/5")
+	public ResponseDto evolution5(@RequestBody RequestDto dto) {
 		return null;
 	}
 }
