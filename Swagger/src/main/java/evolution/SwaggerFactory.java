@@ -50,9 +50,9 @@ import evolution.dto.Tag;
 public class SwaggerFactory {
 	public static final String DEFINITIONS = "#/definitions/";
 
-	public static void swaggers(String projectPath, String projectBasePath, String destinationPath) {
+	public static void swaggers(String projectPath, String destinationPath) {
 		List<Class<?>> classes = new LinkedList<>();
-		classes = FileUtil.classes(projectPath, projectBasePath, Arrays.asList(RestController.class, Controller.class), classes);
+		classes = FileUtil.classes(projectPath, Arrays.asList(RestController.class, Controller.class), classes);
 		for (Class<?> clazz : classes) {
 			swagger(clazz, destinationPath + "/" + clazz.getSimpleName() + ".yaml");
 		}
