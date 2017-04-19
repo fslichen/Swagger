@@ -7,9 +7,11 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import evolution.dto.AdditionalProperties;
@@ -71,9 +74,24 @@ public class SwaggerFactory {
 				.map(x -> {
 					PathVariable pathVariable = x.getAnnotation(PathVariable.class);
 					String value = pathVariable.value();
-					return value != null ? value : pathVariable.name();
+					return !StringUtils.isEmpty(value) ? value : pathVariable.name();
 				})
 				.collect(Collectors.toList());
+	}
+	
+	public static Map<String, Boolean> requestParams(Method method) {
+		Map<String, Boolean> requestParams = new LinkedHashMap<>();
+		for (java.lang.reflect.Parameter parameter : method.getParameters()) {
+			RequestParam requestParam = parameter.getAnnotation(RequestParam.class);
+			if (requestParam != null) {
+				String value = requestParam.value();
+				value = !StringUtils.isEmpty(value) ? value : requestParam.name();
+				Boolean isRequired = requestParam.required();
+				isRequired = isRequired != null ? isRequired : true;
+				requestParams.put(value, isRequired);
+			}
+		}
+		return requestParams;
 	}
 
 	public static Class<?> responseBodyDto(Method method) {
@@ -285,6 +303,16 @@ public class SwaggerFactory {
 				pathParameter.setName(pathVariable);
 				pathParameter.setType("string");
 				parameters.add(pathParameter);
+			}
+			// Request Parameter
+			Map<String, Boolean> requestParams = requestParams(method); 
+			for (Entry<String, Boolean> requestParam : requestParams.entrySet()) {
+				Parameter requestParameter = new Parameter();
+				requestParameter.setIn("query");
+				requestParameter.setRequired(requestParam.getValue());
+				requestParameter.setName(requestParam.getKey());
+				requestParameter.setType("string");
+				parameters.add(requestParameter);
 			}
 			// Request Body
 			Class<?> requestBodyDtoClass = requestBodyDto(method);
