@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import evolution.dto.AdditionalProperties;
 import evolution.dto.Contact;
+import evolution.dto.DefaultSwagger;
 import evolution.dto.Definition;
 import evolution.dto.Delete;
 import evolution.dto.ExternalDocs;
@@ -50,11 +51,11 @@ import evolution.dto.Tag;
 public class SwaggerFactory {
 	public static final String DEFINITIONS = "#/definitions/";
 
-	public static void swaggers(String projectPath, String destinationPath) {
+	public static void swaggers(String basePackagePath, String destinationPath, DefaultSwagger defaultSwagger) {
 		List<Class<?>> classes = new LinkedList<>();
-		classes = FileUtil.classes(projectPath, Arrays.asList(RestController.class, Controller.class), classes);
+		classes = FileUtil.classes(basePackagePath, Arrays.asList(RestController.class, Controller.class), classes);
 		for (Class<?> clazz : classes) {
-			swagger(clazz, destinationPath + "/" + clazz.getSimpleName() + ".yaml");
+			swagger(clazz, destinationPath + "/" + clazz.getSimpleName() + ".yaml", defaultSwagger);
 		}
 	}
 	
@@ -283,7 +284,7 @@ public class SwaggerFactory {
 	}
 	
 	@SuppressWarnings({ "rawtypes" })
-	public static void swagger(Class controllerClass, String filePath) {
+	public static void swagger(Class controllerClass, String filePath, DefaultSwagger defaultSwagger) {
 		Map<String, Http> paths = new LinkedHashMap<>();
 		Map<String, Definition> definitions = new LinkedHashMap<>();
 		List<Method> methods = Arrays.asList(controllerClass.getDeclaredMethods())
@@ -392,44 +393,45 @@ public class SwaggerFactory {
 		}
 		Swagger swagger = new Swagger();
 		swagger.setSwagger("2.0");
-		swagger.setInfo(info());
-		swagger.setHost("Unknown");
+		swagger.setInfo(info(defaultSwagger));
+		swagger.setHost(defaultSwagger.getHost());
 		swagger.setBasePath(requestMappingDto(controllerClass).getUri());
-		swagger.setTags(Arrays.asList(tag()));
+		swagger.setTags(Arrays.asList(tag(defaultSwagger)));
 		swagger.setSchemes(Arrays.asList("http"));
 		swagger.setPaths(paths);
 		swagger.setDefinitions(definitions);
-		swagger.setExternalDocs(externalDocs());
+		swagger.setExternalDocs(externalDocs(defaultSwagger));
 		Yml.write(swagger, filePath, true, new MyRepresenter(true, true, null), true);
 	}
 
-	public static ExternalDocs externalDocs() {
+	public static ExternalDocs externalDocs(DefaultSwagger defaultSwagger) {
 		ExternalDocs externalDocs = new ExternalDocs();
-		externalDocs.setDescription("Unknown");
-		externalDocs.setUrl("Unknown");
+		externalDocs.setDescription(defaultSwagger.getDescription4ExternalDocs());
+		externalDocs.setUrl(defaultSwagger.getUrl4ExternalDocs());
 		return externalDocs;
 	}
 
-	public static Tag tag() {
+	public static Tag tag(DefaultSwagger defaultSwagger) {
 		Tag tag = new Tag();
-		tag.setName("Unknown");
-		tag.setDescription("Unknown");
-		tag.setExternalDocs(externalDocs());
+		tag.setName(defaultSwagger.getName4Tag());
+		tag.setDescription(defaultSwagger.getDescription4Tag());
+		tag.setExternalDocs(externalDocs(defaultSwagger));
 		return tag;
 	}
 
-	public static Info info() {
+	public static Info info(DefaultSwagger defaultSwagger) {
 		Info info = new Info();
-		info.setDescription("Unknown");
-		info.setVersion("Unknown");
-		info.setTitle("Unknown");
-		info.setTermsOfService("Unknown");
+		info.setDescription(defaultSwagger.getDescription4Info());
+		info.setVersion(defaultSwagger.getVersion4Info());
+		info.setTitle(defaultSwagger.getTitle4Info());
+		info.setTermsOfService(defaultSwagger.getTermsOfService4Info());
 		Contact contact = new Contact();
-		contact.setEmail("fslichen863@gmail.com");
+		contact.setEmail(defaultSwagger.getEmail4Contact());
 		info.setContact(contact);
 		License license = new License();
-		license.setUrl("Unknown");
-		license.setName("Unknown");
+		license.setUrl(defaultSwagger.getUrl4License());
+		license.setName(defaultSwagger.getName4License());
+		info.setLicense(license);
 		return info;
 	}
 }
