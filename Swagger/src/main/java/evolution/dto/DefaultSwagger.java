@@ -2,17 +2,19 @@ package evolution.dto;
 
 public class DefaultSwagger {
 	private static final String UNKNOWN = "Unknown";
+	private static final String UNKNOWN_URL = "http://www.unknown.com";
+	private static final String UNKNOWN_EMAIL = "unknown@unknown.com";
 	private String host = UNKNOWN;
 	private String description4ExternalDocs = UNKNOWN;
-	private String url4ExternalDocs = UNKNOWN;
+	private String url4ExternalDocs = UNKNOWN_URL;
 	private String name4Tag = UNKNOWN;
 	private String description4Tag = UNKNOWN;
 	private String description4Info = UNKNOWN;
 	private String version4Info = UNKNOWN;
 	private String title4Info = UNKNOWN;
 	private String termsOfService4Info = UNKNOWN;
-	private String email4Contact = UNKNOWN;
-	private String url4License = UNKNOWN;
+	private String email4Contact = UNKNOWN_EMAIL;
+	private String url4License = UNKNOWN_URL;
 	private String name4License = UNKNOWN;
 	
 	public String getDescription4ExternalDocs() {
