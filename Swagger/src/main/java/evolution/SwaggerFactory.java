@@ -52,7 +52,7 @@ public class SwaggerFactory {
 	public static final String DEFINITIONS = "#/definitions/";
 
 	public static void swaggers(String basePackageName, String destinationPath, DefaultSwagger defaultSwagger) {
-		String basePackagePath = System.getProperty("user.dir") + "/src/main/java/" + basePackageName.replace('.', '/');
+		String basePackagePath = System.getProperty("user.dir").replace('\\', '/') + "/src/main/java/" + basePackageName.replace('.', '/');
 		String mainJavaPath = basePackagePath.substring(0, Str.backIndexOf(basePackagePath, '/', Str.count(basePackageName, '.') + 1));
 		List<Class<?>> classes = new LinkedList<>();
 		classes = FileUtil.classes(basePackagePath, mainJavaPath, Arrays.asList(RestController.class, Controller.class), classes);
