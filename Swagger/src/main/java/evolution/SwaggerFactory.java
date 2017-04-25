@@ -267,9 +267,23 @@ public class SwaggerFactory {
 	public static String type(Class<?> clazz) {
 		String className = clazz.getSimpleName().toLowerCase();
 		switch (className) {
+		case "boolean":
+		case "Boolean":
+			return "boolean";
+		case "byte":
+		case "Byte":
+		case "char":
+		case "short":
+		case "Short":
 		case "int":
+		case "Integer":
+		case "long":
+		case "Long":
 			return "integer";
+		case "float":
+		case "Float":
 		case "double":
+		case "Double":
 			return "number";
 		default:
 			return className;
