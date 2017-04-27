@@ -180,7 +180,7 @@ public class SwaggerFactory {
 					property.setType(type(field));
 				} else if (Ref.isList(field)) {
 					property.setType("array");
-					property.setItems(listItems(field));
+					property.setItems(listItems(field, definitions));
 				} else if (Ref.isMap(field)) {
 					addDefinition(Ref.genericClass(field, 1), definitions, null, null);
 				} else {// POJO
@@ -212,13 +212,14 @@ public class SwaggerFactory {
 		return items;
 	}
 
-	public static Items listItems(Field field) {
+	public static Items listItems(Field field, Map<String, Definition> definitions) {
 		Items items = new Items();
 		Class<?> clazz = Ref.genericClass(field, 0);
 		if (Ref.isBasic(clazz)) {
 			items.setType(clazz.getSimpleName().toLowerCase());
 		} else {
 			items.set$ref(DEFINITIONS + clazz.getSimpleName());
+			addDefinition(clazz, definitions, null, null);
 		}
 		return items;
 	}
