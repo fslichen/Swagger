@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import evolution.annotation.Example;
 import evolution.dto.AdditionalProperties;
 import evolution.dto.Contact;
 import evolution.dto.DefaultSwagger;
@@ -146,6 +147,23 @@ public class SwaggerFactory {
 		addDefinition(object.getClass(), definitions, method, isRequestBody);
 	}
 
+	public static Object example(Field field) {
+		field.setAccessible(true);
+		Example example = field.getDeclaredAnnotation(Example.class);
+		if (example == null) {
+			return null;
+		}
+		int intValue = example.intValue();
+		if (intValue != Integer.MIN_VALUE) {
+			return intValue;
+		}
+		double doubleValue = example.doubleValue();
+		if (doubleValue != Double.MIN_VALUE) {
+			return doubleValue;
+		}
+		return example.value();
+	}
+	
 	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions, Method method, Boolean isRequestBody) {
 		String className = Ref.simpleClassName(clazz);
 		if (definitions.containsKey(className)) {
@@ -178,6 +196,7 @@ public class SwaggerFactory {
 				Property property = new Property();
 				if (Ref.isBasic(field)) {
 					property.setType(type(field));
+					property.setExample(example(field));
 				} else if (Ref.isList(field)) {
 					property.setType("array");
 					property.setItems(listItems(field, definitions));

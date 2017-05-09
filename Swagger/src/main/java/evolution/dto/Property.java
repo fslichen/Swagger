@@ -6,43 +6,52 @@ public class Property {
 	private String description;
 	private String $ref;
 	private Items items;
+	private Object example;
 	
 	public String get$ref() {
 		return $ref;
 	}
 
-	public void set$ref(String $ref) {
-		this.$ref = $ref;
+	public String getDescription() {
+		return description;
+	}
+
+	public Object getExample() {
+		return example;
+	}
+
+	public String getFormat() {
+		return format;
 	}
 
 	public Items getItems() {
 		return items;
-	}
-
-	public void setItems(Items items) {
-		this.items = items;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-	
-	public String getFormat() {
-		return format;
 	}
 	
 	public String getType() {
 		return type;
 	}
 	
+	public void set$ref(String $ref) {
+		this.$ref = $ref;
+	}
+	
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public void setExample(Object example) {
+		this.example = example;
 	}
 	
 	public void setFormat(String format) {
 		this.format = format;
 	}
-	
+
+	public void setItems(Items items) {
+		this.items = items;
+	}
+
 	public void setType(String type) {
 		this.type = type;
 	}
@@ -50,6 +59,6 @@ public class Property {
 	@Override
 	public String toString() {
 		return "Property [type=" + type + ", format=" + format + ", description=" + description + ", $ref=" + $ref
-				+ ", items=" + items + "]";
+				+ ", items=" + items + ", example=" + example + "]";
 	}
 }
