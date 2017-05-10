@@ -375,6 +375,15 @@ public class SwaggerFactory {
 				|| method.getAnnotation(PutMapping.class) != null;
 	}
 	
+	public static final boolean USE_API_EXAMPLE = true;
+	
+	public static Schema concreteSchema(Class<?> controllerClass, Method controllerMethod, Class<?> dtoClass) {
+		Schema schema = new Schema();
+		schema.setType("object");
+		schema.setProperties(apiExampleProperties(controllerClass, controllerMethod, dtoClass));
+		return schema;
+	}
+	
 	@SuppressWarnings({ "rawtypes" })
 	public static void swagger(Class controllerClass, String filePath, DefaultSwagger defaultSwagger) {
 		Map<String, Http> paths = new LinkedHashMap<>();
@@ -421,7 +430,13 @@ public class SwaggerFactory {
 				} else if (Ref.isMap(requestBodyDtoClass)) {
 					bodyParameter.setSchema(mapSchema(method, true));
 				} else {// POJO
-					bodyParameter.setSchema(refSchema(requestBodyDtoClass));
+					Schema schema = null;
+					if (USE_API_EXAMPLE) {
+						schema = concreteSchema(controllerClass, method, requestBodyDtoClass);
+					} else {
+						schema = refSchema(requestBodyDtoClass);
+					}
+					bodyParameter.setSchema(schema);
 				}
 				bodyParameter.setName("requestBody");
 				bodyParameter.setIn("body");
