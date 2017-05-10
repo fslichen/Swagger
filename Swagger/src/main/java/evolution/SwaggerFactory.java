@@ -1,5 +1,6 @@
 package evolution;
 
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -8,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Controller;
@@ -52,7 +54,18 @@ import evolution.dto.Tag;
 
 public class SwaggerFactory {
 	public static final String DEFINITIONS = "#/definitions/";
-
+	
+	static {
+		try {
+			InputStream inputStream = SwaggerFactory.class.getResourceAsStream("/application.properties");
+			Properties properties = new Properties();
+			properties.load(inputStream);
+			USE_API_EXAMPLE = new Boolean(properties.getProperty("use-api-example"));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static Map<String, Property> apiExampleProperties(Class<?> controllerClazz, Method controllerMethod, Class<?> controllerDtoClass) {
 		Field[] fields = controllerDtoClass.getDeclaredFields();
 		Map<String, Property> exampleProperties = new LinkedHashMap<>();
@@ -384,7 +397,7 @@ public class SwaggerFactory {
 				|| method.getAnnotation(PutMapping.class) != null;
 	}
 	
-	public static final boolean USE_API_EXAMPLE = true;
+	public static boolean USE_API_EXAMPLE;
 	
 	public static Schema concreteSchema(Class<?> controllerClass, Method controllerMethod, Class<?> dtoClass) {
 		Schema schema = new Schema();
