@@ -276,7 +276,7 @@ public class SwaggerFactory {
 		}
 	}
 
-	public static Items listItems(Method method, boolean isRequestBody) {
+	public static Items listItems(Class<?> controllerClass, Method method, boolean isRequestBody) {
 		Items items = new Items();
 		Class<?> clazz = null;
 		if (isRequestBody) {
@@ -287,7 +287,11 @@ public class SwaggerFactory {
 		if (Ref.isBasic(clazz)) {
 			items.setType(clazz.getSimpleName().toLowerCase());
 		} else {
-			items.set$ref(DEFINITIONS + clazz.getSimpleName());
+			if (USE_API_EXAMPLE) {
+				items.setProperties(apiExampleProperties(controllerClass, method, clazz));
+			} else {
+				items.set$ref(DEFINITIONS + clazz.getSimpleName());
+			}
 		}
 		return items;
 	}
@@ -322,10 +326,10 @@ public class SwaggerFactory {
 		return schema;
 	}
 
-	public static Schema listSchema(Method method, boolean isRequestBody) {
+	public static Schema listSchema(Class<?> controllerClass, Method method, boolean isRequestBody) {
 		Schema schema = new Schema();
 		schema.setType("array");
-		schema.setItems(listItems(method, isRequestBody));
+		schema.setItems(listItems(controllerClass, method, isRequestBody));
 		return schema;
 	}
 
@@ -431,7 +435,7 @@ public class SwaggerFactory {
 				} else if (Ref.isBasic(requestBodyDtoClass)) {// Rare Case
 					bodyParameter.setType(type(requestBodyDtoClass));
 				} else if (Ref.isList(requestBodyDtoClass)) {
-					bodyParameter.setSchema(listSchema(method, true));
+					bodyParameter.setSchema(listSchema(controllerClass, method, true));
 				} else if (Ref.isMap(requestBodyDtoClass)) {
 					bodyParameter.setSchema(mapSchema(method, true));
 				} else {// POJO
@@ -455,7 +459,7 @@ public class SwaggerFactory {
 				} else if (Ref.isBasic(responseBodyDtoClass)) {// Rare Case
 					response.setSchema(typeSchema(responseBodyDtoClass));
 				} else if (Ref.isList(responseBodyDtoClass)) {
-					response.setSchema(listSchema(method, false));
+					response.setSchema(listSchema(controllerClass, method, false));
 				} else if (Ref.isMap(responseBodyDtoClass)) {
 					response.setSchema(mapSchema(method, false));
 				} else {// POJO
