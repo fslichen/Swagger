@@ -24,7 +24,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import evolution.annotation.Example;
+import evolution.annotation.ApiExamples;
+import evolution.annotation.DefinitionExample;
 import evolution.dto.AdditionalProperties;
 import evolution.dto.Contact;
 import evolution.dto.DefaultSwagger;
@@ -52,6 +53,24 @@ import evolution.dto.Tag;
 public class SwaggerFactory {
 	public static final String DEFINITIONS = "#/definitions/";
 
+	public static Map<String, Property> apiExampleProperties(Class<?> controllerClazz, Method controllerMethod, Class<?> controllerDtoClass) {
+		Field[] fields = controllerDtoClass.getDeclaredFields();
+		Map<String, Property> exampleProperties = new LinkedHashMap<>();
+		for (Field field : fields) {// TODO Add recursive features.
+			Property property = new Property();
+			if (Ref.isBasic(field)) {// TODO Also consider the list and map cases.
+				Object sampleValue = apiExample(controllerClazz, controllerMethod, field);
+				property.setType(type(field));
+				property.setExample(sampleValue);
+			} else {// POJO
+				property.setType("object");
+				property.setProperties(apiExampleProperties(controllerClazz, controllerMethod, field.getType()));
+			}
+			exampleProperties.put(field.getName(), property);
+		}
+		return exampleProperties;
+	}
+	
 	public static void swaggers(String basePackageName, String destinationPath, DefaultSwagger defaultSwagger) {
 		String basePackagePath = System.getProperty("user.dir").replace('\\', '/') + "/src/main/java/" + basePackageName.replace('.', '/');
 		String mainJavaPath = basePackagePath.substring(0, Str.backIndexOf(basePackagePath, '/', Str.count(basePackageName, '.') + 1));
@@ -147,9 +166,9 @@ public class SwaggerFactory {
 		addDefinition(object.getClass(), definitions, method, isRequestBody);
 	}
 
-	public static Object example(Field field) {
+	public static Object definitionExample(Field field) {
 		field.setAccessible(true);
-		Example example = field.getDeclaredAnnotation(Example.class);
+		DefinitionExample example = field.getDeclaredAnnotation(DefinitionExample.class);
 		if (example == null) {
 			return null;
 		}
@@ -161,7 +180,45 @@ public class SwaggerFactory {
 		if (doubleValue != Double.MIN_VALUE) {
 			return doubleValue;
 		}
-		return example.value();
+		String stringValue = example.stringValue();
+		if (stringValue != null) {
+			return stringValue;
+		}
+		return null;
+	}
+	
+	public static Object apiExample(Class<?> controllerClass, Method controllerMethod, Field dtoField) {
+		dtoField.setAccessible(true);
+		ApiExamples example = dtoField.getDeclaredAnnotation(ApiExamples.class);
+		if (example == null) {
+			return null;
+		}
+		String[] keys = example.keys();
+		int i = 0;
+		boolean controllerFound = false;
+		for (String key : keys) {
+			if (key.equals(controllerClass.getSimpleName() + "." + controllerMethod.getName())) {
+				controllerFound = true;
+				break;
+			}
+			i++;
+		}
+		if (!controllerFound) {
+			return null;
+		}
+		try {
+			String stringValue = example.stringValues()[i];
+			if (!StringUtils.isEmpty(stringValue)) {
+				return stringValue;
+			} 
+		} catch (Exception e) {}// Array Index out of Bounds
+		try {
+			int intValue = example.intValues()[i];
+			if (intValue != Integer.MIN_VALUE) {
+				return intValue;
+			} 
+		} catch (Exception e) {}// Array Index out of Bounds
+		return null;
 	}
 	
 	public static void addDefinition(Class<?> clazz, Map<String, Definition> definitions, Method method, Boolean isRequestBody) {
@@ -196,7 +253,6 @@ public class SwaggerFactory {
 				Property property = new Property();
 				if (Ref.isBasic(field)) {
 					property.setType(type(field));
-					property.setExample(example(field));
 				} else if (Ref.isList(field)) {
 					property.setType("array");
 					property.setItems(listItems(field, definitions));

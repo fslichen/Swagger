@@ -1,5 +1,7 @@
 package evolution.dto;
 
+import java.util.Map;
+
 public class Property {
 	private String type;
 	private String format;
@@ -7,6 +9,15 @@ public class Property {
 	private String $ref;
 	private Items items;
 	private Object example;
+	private Map<String, Property> properties;// Properties within Property is allowed.
+	
+	public Map<String, Property> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Property> properties) {
+		this.properties = properties;
+	}
 	
 	public String get$ref() {
 		return $ref;
@@ -59,6 +70,6 @@ public class Property {
 	@Override
 	public String toString() {
 		return "Property [type=" + type + ", format=" + format + ", description=" + description + ", $ref=" + $ref
-				+ ", items=" + items + ", example=" + example + "]";
+				+ ", items=" + items + ", example=" + example + ", properties=" + properties + "]";
 	}
 }
