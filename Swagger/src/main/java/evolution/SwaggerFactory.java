@@ -459,7 +459,7 @@ public class SwaggerFactory {
 				} else if (Ref.isMap(responseBodyDtoClass)) {
 					response.setSchema(mapSchema(method, false));
 				} else {// POJO
-					response.setSchema(refSchema(responseBodyDtoClass));
+					response.setSchema(USE_API_EXAMPLE ? concreteSchema(controllerClass, method, responseBodyDtoClass) : refSchema(responseBodyDtoClass));
 				}
 				Map<Integer, Response> responses = new LinkedHashMap<>();
 				responses.put(200, response);// TODO Response code is not limited to 200.
