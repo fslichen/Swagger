@@ -58,10 +58,15 @@ public class SwaggerFactory {
 		Map<String, Property> exampleProperties = new LinkedHashMap<>();
 		for (Field field : fields) {// TODO Add recursive features.
 			Property property = new Property();
-			if (Ref.isBasic(field)) {// TODO Also consider the list and map cases.
+			if (Ref.isBasic(field)) {
 				Object sampleValue = apiExample(controllerClazz, controllerMethod, field);
 				property.setType(type(field));
 				property.setExample(sampleValue);
+			} else if (Ref.isList(field)) {// List
+				property.setType("array");
+				Items items = new Items();
+				items.setProperties(apiExampleProperties(controllerClazz, controllerMethod, Ref.genericClass(field, 0)));
+				property.setItems(items);
 			} else {// POJO
 				property.setType("object");
 				property.setProperties(apiExampleProperties(controllerClazz, controllerMethod, field.getType()));

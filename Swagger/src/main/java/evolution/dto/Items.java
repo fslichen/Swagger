@@ -1,8 +1,19 @@
 package evolution.dto;
 
+import java.util.Map;
+
 public class Items {
 	private String type;
 	private String $ref;
+	private Map<String, Property> properties;
+	
+	public Map<String, Property> getProperties() {
+		return properties;
+	}
+
+	public void setProperties(Map<String, Property> properties) {
+		this.properties = properties;
+	}
 
 	public String get$ref() {
 		return $ref;
@@ -22,6 +33,6 @@ public class Items {
 
 	@Override
 	public String toString() {
-		return "Items [type=" + type + ", $ref=" + $ref + "]";
+		return "Items [type=" + type + ", $ref=" + $ref + ", properties=" + properties + "]";
 	}
 }
