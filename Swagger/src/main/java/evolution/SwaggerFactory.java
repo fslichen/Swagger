@@ -435,13 +435,7 @@ public class SwaggerFactory {
 				} else if (Ref.isMap(requestBodyDtoClass)) {
 					bodyParameter.setSchema(mapSchema(method, true));
 				} else {// POJO
-					Schema schema = null;
-					if (USE_API_EXAMPLE) {
-						schema = concreteSchema(controllerClass, method, requestBodyDtoClass);
-					} else {
-						schema = refSchema(requestBodyDtoClass);
-					}
-					bodyParameter.setSchema(schema);
+					bodyParameter.setSchema(USE_API_EXAMPLE ? concreteSchema(controllerClass, method, requestBodyDtoClass) : refSchema(requestBodyDtoClass));
 				}
 				bodyParameter.setName("requestBody");
 				bodyParameter.setIn("body");
